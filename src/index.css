@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .prose-reader {
+    max-width: 42rem;
+    margin: 0 auto;
+    font-size: 1.125rem;
+    line-height: 1.85;
+    letter-spacing: 0.04em;
+    color: #2d3748;
+  }
+  .prose-reader p {
+    margin-bottom: 1.75rem;
+    text-align: justify;
+  }
+  .prose-reader h1, .prose-reader h2 {
+    font-weight: 700;
+    color: #1a202c;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+}
