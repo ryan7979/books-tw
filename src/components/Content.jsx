@@ -5,6 +5,7 @@ import { DICTIONARY } from '../utils/dictionary.js';
 
 export function Content({
   toc,
+  scrollStorageKey,
   theme,
   onThemeChange,
   currentChIndex,
@@ -32,6 +33,7 @@ export function Content({
       <Body
         markdownHtml={markdownHtml}
         isLoadingContent={isLoadingContent}
+        scrollStorageKey={scrollStorageKey}
         onPrevious={() => {
           if (currentChIndex > 0 && !isLoadingContent) onPrevious();
         }}

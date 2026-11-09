@@ -71,7 +71,7 @@ html.dark {
   }
 
   .reader-page {
-    @apply flex h-dvh flex-col overflow-hidden bg-slate-100 text-gray-900;
+    @apply flex h-dvh flex-col gap-2 overflow-hidden bg-slate-100 text-gray-900;
   }
   .reader-header {
     @apply relative z-10 mx-auto w-full max-w-4xl shrink-0 border-b border-gray-100 bg-white/90 px-6 py-3 backdrop-blur-md;

@@ -1,4 +1,5 @@
 export const DICTIONARY = {
+  siteTitle: '心書齋',
   bookshelf: {
     title: '📚 個人數位書房',
     description: '極簡閱讀空間',

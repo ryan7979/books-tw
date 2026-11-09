@@ -1,13 +1,44 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { DICTIONARY } from '../utils/dictionary.js';
 
-export function Body({ markdownHtml, isLoadingContent, onPrevious, onNext }) {
+export function Body({
+  markdownHtml,
+  isLoadingContent,
+  scrollStorageKey,
+  onPrevious,
+  onNext,
+}) {
   const bodyRef = useRef(null);
   const touchStart = useRef(null);
+  const saveTimer = useRef(null);
 
   useEffect(() => {
-    if (bodyRef.current) bodyRef.current.scrollTop = 0;
-  }, [markdownHtml]);
+    if (!bodyRef.current || isLoadingContent) return;
+
+    const savedPosition = Number(localStorage.getItem(scrollStorageKey));
+    bodyRef.current.scrollTop = Number.isFinite(savedPosition)
+      ? Math.max(0, savedPosition)
+      : 0;
+  }, [markdownHtml, isLoadingContent, scrollStorageKey]);
+
+  useEffect(() => () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    if (bodyRef.current) {
+      localStorage.setItem(scrollStorageKey, String(bodyRef.current.scrollTop));
+    }
+  }, [scrollStorageKey]);
+
+  const handleScroll = () => {
+    if (isLoadingContent) return;
+
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      if (bodyRef.current) {
+        localStorage.setItem(scrollStorageKey, String(bodyRef.current.scrollTop));
+      }
+      saveTimer.current = null;
+    }, 200);
+  };
 
   const handleTouchStart = event => {
     const touch = event.changedTouches[0];
@@ -38,6 +69,7 @@ export function Body({ markdownHtml, isLoadingContent, onPrevious, onNext }) {
       ref={bodyRef}
       class="reader-body"
       style={{ touchAction: 'pan-y' }}
+      onScroll={handleScroll}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={() => { touchStart.current = null; }}

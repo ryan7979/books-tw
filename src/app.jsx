@@ -103,6 +103,7 @@ export function App() {
   return (
     <Content
       toc={toc}
+      scrollStorageKey={`scroll_${currentBookId}_${toc?.chapters[currentChIndex]?.id || ''}`}
       theme={theme}
       onThemeChange={setTheme}
       currentChIndex={currentChIndex}
