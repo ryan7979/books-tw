@@ -1,0 +1,25 @@
+{
+  "name": "books-tw-page",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "vite build",
+    "dev": "concurrently \"vite build --watch\" \"wrangler dev\"",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6",
+    "vite": "^8.3.5",
+    "wrangler": "^4.151.3"
+  },
+  "dependencies": {
+    "hono": "^4.13.13"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ryan7979/books-tw-page/issues"
+  },
+  "homepage": "https://github.com/ryan7979/books-tw-page#readme"
+}
