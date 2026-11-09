@@ -1,8 +1,220 @@
 @import "tailwindcss";
 
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+@layer components {
+  .bookshelf-page {
+    @apply min-h-screen bg-gray-50 px-4 py-8 text-gray-900;
+  }
+  .bookshelf-header {
+    @apply mx-auto mb-8 max-w-5xl text-center sm:text-left;
+  }
+  .bookshelf-topbar {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+  }
+  .bookshelf-title {
+    @apply mb-2 text-3xl font-extrabold tracking-tight text-gray-900;
+  }
+  .bookshelf-description {
+    @apply text-gray-500;
+  }
+  .bookshelf-search-wrap {
+    @apply mt-6 max-w-md;
+  }
+  .bookshelf-search {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  .bookshelf-content {
+    @apply mx-auto max-w-5xl;
+  }
+  .bookshelf-empty {
+    @apply py-20 text-center text-gray-400;
+  }
+  .bookshelf-grid {
+    @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .book-card {
+    @apply flex cursor-pointer gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md;
+  }
+  .book-cover-frame {
+    @apply h-32 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-200 shadow-inner;
+  }
+  .book-cover {
+    @apply h-full w-full object-cover transition-transform duration-300;
+  }
+  .book-card:hover .book-cover {
+    @apply scale-105;
+  }
+  .book-details {
+    @apply flex flex-col justify-between overflow-hidden;
+  }
+  .book-title {
+    @apply truncate font-bold text-gray-900 transition-colors;
+  }
+  .book-card:hover .book-title {
+    @apply text-blue-600;
+  }
+  .book-author {
+    @apply mt-0.5 truncate text-xs text-gray-400;
+  }
+  .book-description {
+    @apply mt-2 line-clamp-3 text-xs leading-relaxed text-gray-500;
+  }
+  .book-progress {
+    @apply mt-2 text-[10px] font-medium text-gray-400;
+  }
+
+  .reader-page {
+    @apply flex h-dvh flex-col overflow-hidden bg-slate-100 text-gray-900;
+  }
+  .reader-header {
+    @apply relative z-10 mx-auto w-full max-w-4xl shrink-0 border-b border-gray-100 bg-white/90 px-6 py-3 backdrop-blur-md;
+  }
+  .reader-header-inner {
+    @apply grid grid-cols-[auto_1fr_auto] items-center gap-3;
+  }
+  .reader-header-tools {
+    @apply flex items-center gap-2;
+  }
+  .theme-toggle {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-lg transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  .theme-toggle-desktop {
+    @apply shrink-0;
+  }
+  .reader-close {
+    @apply whitespace-nowrap text-sm font-medium text-gray-500 transition-colors hover:text-gray-900;
+  }
+  .reader-heading {
+    @apply min-w-0 text-center;
+  }
+  .reader-book-title {
+    @apply truncate text-xs text-gray-400;
+  }
+  .reader-chapter-title {
+    @apply truncate text-sm font-bold text-gray-800;
+  }
+  .reader-menu-button {
+    @apply rounded-lg p-2 text-gray-600 transition-colors hover:bg-gray-100;
+  }
+  .reader-menu-icon {
+    @apply text-xl leading-none;
+  }
+  .chapter-list {
+    @apply absolute left-0 right-0 top-full max-h-[70vh] overflow-y-auto rounded-b-xl border border-gray-100 bg-white shadow-lg;
+  }
+  .chapter-list-item {
+    @apply block w-full border-b border-gray-50 px-4 py-3 text-left text-sm transition-colors last:border-b-0;
+  }
+  .chapter-list-item-current {
+    @apply bg-blue-50 font-semibold text-blue-700;
+  }
+  .chapter-list-item-default {
+    @apply text-gray-700 hover:bg-gray-50;
+  }
+  .reader-loading {
+    @apply animate-pulse p-8 text-center text-gray-400;
+  }
+  .reader-body {
+    @apply min-h-0 w-full flex-1 overflow-y-auto px-4 py-6;
+  }
+  .reader-body-loading {
+    @apply animate-pulse py-32 text-center text-sm text-gray-300;
+  }
+  .reader-footer {
+    @apply z-10 mx-auto flex w-full max-w-4xl shrink-0 items-center justify-between border-t border-gray-100 bg-white px-6 py-4 shadow-xl;
+  }
+  .reader-page-button {
+    @apply rounded-xl px-4 py-2 text-xs font-semibold transition-colors disabled:opacity-30;
+  }
+  .reader-page-button-previous {
+    @apply border border-gray-100 bg-gray-50 hover:bg-gray-100;
+  }
+  .reader-page-button-next {
+    @apply bg-blue-600 text-white shadow-xs shadow-blue-200 transition-all hover:bg-blue-700;
+  }
+  .reader-page-count {
+    @apply text-xs font-medium tracking-wider text-gray-400;
+  }
+  .chapter-load-error {
+    @apply py-10 text-center text-red-500;
+  }
+
+  .dark .bookshelf-page,
+  .dark .reader-page {
+    @apply bg-gray-950 text-gray-100;
+  }
+  .dark .bookshelf-title,
+  .dark .book-title,
+  .dark .reader-chapter-title {
+    @apply text-gray-100;
+  }
+  .dark .bookshelf-description,
+  .dark .book-description {
+    @apply text-gray-400;
+  }
+  .dark .bookshelf-search {
+    @apply border-gray-700 bg-gray-900 text-gray-100;
+  }
+  .dark .bookshelf-empty,
+  .dark .book-progress,
+  .dark .reader-book-title {
+    @apply text-gray-400;
+  }
+  .dark .book-card {
+    @apply border-gray-800 bg-gray-900;
+  }
+  .dark .book-cover-frame {
+    @apply bg-gray-800;
+  }
+  .dark .book-card:hover .book-title {
+    @apply text-blue-400;
+  }
+  .dark .reader-header {
+    @apply border-gray-800 bg-gray-950/90;
+  }
+  .dark .reader-close {
+    @apply text-gray-400 hover:text-gray-100;
+  }
+  .dark .reader-menu-button {
+    @apply text-gray-300 hover:bg-gray-800;
+  }
+  .dark .theme-toggle {
+    @apply border-gray-700 bg-gray-900 hover:bg-gray-800;
+  }
+  .dark .chapter-list {
+    @apply border-gray-700 bg-gray-900;
+  }
+  .dark .chapter-list-item {
+    @apply border-gray-800;
+  }
+  .dark .chapter-list-item-current {
+    @apply bg-blue-950 text-blue-300;
+  }
+  .dark .chapter-list-item-default {
+    @apply text-gray-200 hover:bg-gray-800;
+  }
+  .dark .reader-body-loading {
+    @apply text-gray-500;
+  }
+  .dark .reader-footer {
+    @apply border-gray-800 bg-gray-900;
+  }
+  .dark .reader-page-button-previous {
+    @apply border-gray-700 bg-gray-800 text-gray-200 hover:bg-gray-700;
+  }
+}
+
 @layer utilities {
+  /* 閱讀器專屬樣式（保持不變） */
   .prose-reader {
-    max-width: 42rem;
+    max-width: 56rem;
     margin: 0 auto;
     font-size: 1.125rem;
     line-height: 1.85;
@@ -13,10 +225,33 @@
     margin-bottom: 1.75rem;
     text-align: justify;
   }
-  .prose-reader h1, .prose-reader h2 {
-    font-weight: 700;
-    color: #1a202c;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+  .dark .prose-reader {
+    color: #e5e7eb;
+  }
+  .dark .prose-reader h1,
+  .dark .prose-reader h2 {
+    color: #f9fafb;
+  }
+
+  /* 🔥 新增：手機左右滑動翻頁的容器與項目控制 */
+  .swipe-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory; /* 強迫橫向滾動時必須精準對齊 */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .swipe-page {
+    flex: 0 0 100%; /* 每一頁都佔滿 100% 螢幕寬度 */
+    width: 100%;
+    scroll-snap-align: start; /* 對齊邊界 */
+    box-sizing: border-box;
+  }
+
+  /* 隱藏手機瀏覽器討人厭的橫向滾動條 */
+  .swipe-container::-webkit-scrollbar {
+    display: none;
   }
 }

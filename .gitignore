@@ -9,8 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
-public/news/
-public/pagefind-news/
+epubs
 dist-ssr
 *.local
 .wrangler/*

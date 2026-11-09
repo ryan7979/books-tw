@@ -1,0 +1,44 @@
+[
+  {
+    "id": "forrest-gump",
+    "title": "阿甘正傳 (Forrest Gump)",
+    "author": "Winston Groom / John Escott",
+    "description": "Penguin Readers Level 3 分級讀物，經典電影原著小說簡化版。",
+    "cover": "/books/forrest-gump/images/cover.jpeg"
+  },
+  {
+    "id": "romance-of-the-three-kingdoms",
+    "title": "三國演義",
+    "author": "羅貫中",
+    "description": "Penguin Readers Level 3 分級讀物，經典電影原著小說簡化版。",
+    "cover": "/books/romance-of-the-three-kingdoms/images/cover.webp"
+  },
+  {
+    "id": "the-death-of-Ivan-Ilyich",
+    "title": "伊凡．伊里奇之死：死亡文學巔峰神作，寫給每一個人的生命之書",
+    "author": "列夫．托爾斯泰",
+    "description": "伊凡．伊里奇之死：死亡文學巔峰神作，寫給每一個人的生命之書",
+    "cover": "/books/the-death-of-Ivan-Ilyich/images/Cover.webp"
+  },
+  {
+    "id": "its-time-for-zhuangzi-1",
+    "title": "正是時候讀莊子",
+    "author": "未知",
+    "description": "正是時候讀莊子",
+    "cover": "/books/its-time-for-zhuangzi-1/images/cover.webp"
+  },
+  {
+    "id": "its-time-for-zhuangzi-2",
+    "title": "莊子，從心開始",
+    "author": "蔡璧名",
+    "description": "莊子，從心開始",
+    "cover": "/books/its-time-for-zhuangzi-2/images/cover.webp"
+  },
+  {
+    "id": "demi-gods-and-semi-devils",
+    "title": "天龍八部",
+    "author": "金庸",
+    "description": "<div>\n<p>天龍八部(全五冊，藏金映象新修版)</p>\n<p>新修金庸．無盡江湖金庸小說動態創作的極致版更人性、更周全、更細膩，世紀新修版華麗改裝 ◆ 追求完美、返璞歸真的終極版本──金庸於1999年開始，對十五部小說進行第三次修訂，以「增」與「修」為原則，並注入一代代金迷的閱讀體驗與感想，將情節上、行文上的矛盾缺失予以修正，全套歷經七年修改完成，是金庸留在這個世界最後，也是最新的版本。此版本亦可看作是晚年金庸重讀中年金庸的成果，儘管是一樣的故事、一樣的人物，經過人生歲月的歷練，金庸對於情愛、人性、歷史、族群的思考，更邃密也更深化，自有不同的體悟與深刻的理解，融入在每一處細節的修訂之中，而有了這一套獨一無二的新修版。 ◆ 經典與現代協奏的意象符碼──伴隨著時代變遷，並延續亮彩映象修訂版「經典與現代融合」的企圖，打造出兩岸三地最特出的金庸封面視覺，從每一部小說中提取關鍵意象，賦予豪情瑰麗的色調，呈現武俠小說的黃金年代。書名字以金箔燙印，蘊蓄藏金質感，也是歷代金庸小說版本中的首例。 ◆ 從世界的回響再看金庸──《紐約客》雜誌曾報導金庸作品在華語世界的流行程度，大約等於《哈利波特》與《星際大戰》的總和，「金庸將江湖交織融貫於中國歷史，就像是托爾金把自己的創造力帶向了查理曼時代的歐洲」。 《天龍八部》：包羅萬有，離奇曲折，金庸之磅礡巨作；無人不冤，有情皆孽，金庸之最佳小說《天龍八部》的特點，不僅是空間視野的大氣縱橫、敘事結構的錯綜複雜，更在於人物性格與命運的精采奇妙。這是一部龐大但不致鬆散、緊密但不失餘裕的巨構。在新修版中，小自段譽認阿碧為乾妹子、蕭峯復仇之路上突遇五位來路不明的老者、蕭遠山的出身事蹟、慕容博年輕時的回憶等補充情節，大至逍遙派中無崖子、天山童姥、李秋水與丁春秋的四角情愛糾葛；王語嫣對「青春不老」的癡迷，致使段譽擺脫對王語嫣的「心魔」，直至結局的全面翻盤。讀者觀來，再再是一場全新的閱讀震撼！ 封面意象：「八部神將」做主視覺。以明朝「天龍八部」繪畫，點出「可憐芸芸眾生的世界」，「背後籠罩著佛法的無邊大超脫」之意旨。</p></div>",
+    "cover": "/books/demi-gods-and-semi-devils/images/cover.webp"
+  }
+]

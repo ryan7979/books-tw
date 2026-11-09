@@ -1,104 +1,117 @@
-import { useState } from 'preact/hooks'
-import heroImg from './assets/hero.png'
-import preactLogo from './assets/preact.svg'
-import viteLogo from './assets/vite.svg'
-import './app.css'
+import { h } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
+import snarkdown from 'snarkdown';
+import { Bookshelf } from './components/Bookshelf.jsx';
+import { Content } from './components/Content.jsx';
+import { DICTIONARY } from './utils/dictionary.js';
+
+function renderMarkdown(markdown) {
+  return markdown
+    .split(/\r?\n[ \t]*\r?\n+/)
+    .map(block => block.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, ''))
+    .filter(Boolean)
+    .map(block => {
+      const html = snarkdown(block);
+      return /^<(?:h[1-6]|ul|ol|blockquote|pre|table|hr|div|figure|section|p)\b/i
+        .test(html)
+        ? html
+        : `<p>${html}</p>`;
+    })
+    .join('\n');
+}
 
 export function App() {
-  const [count, setCount] = useState(0)
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'dark' ? 'dark' : 'light';
+  });
+  const [currentBookId, setCurrentBookId] = useState(null);
+  const [bookList, setBookList] = useState([]);
+  const [toc, setToc] = useState(null);
+  const [currentChIndex, setCurrentChIndex] = useState(0);
+  const [markdownHtml, setMarkdownHtml] = useState('');
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  useEffect(() => {
+    fetch('/books/manifest.json')
+      .then(res => res.json())
+      .then(data => setBookList(data))
+      .catch(err => console.error(DICTIONARY.errors.bookListLoad, err));
+  }, []);
+
+  useEffect(() => {
+    if (!currentBookId) {
+      setToc(null);
+      return;
+    }
+
+    fetch(`/books/${currentBookId}/toc.json`)
+      .then(res => res.json())
+      .then(data => {
+        setToc(data);
+        const savedChId = localStorage.getItem(`progress_${currentBookId}`);
+        if (savedChId) {
+          const index = data.chapters.findIndex(ch => ch.id === savedChId);
+          if (index !== -1) {
+            setCurrentChIndex(index);
+            return;
+          }
+        }
+        setCurrentChIndex(0);
+      })
+      .catch(err => console.error(DICTIONARY.errors.bookTocLoad, err));
+  }, [currentBookId]);
+
+  useEffect(() => {
+    if (!toc || !currentBookId) return;
+
+    const currentChapter = toc.chapters[currentChIndex];
+    if (!currentChapter) return;
+
+    setIsLoadingContent(true);
+
+    fetch(`/books/${currentBookId}/${currentChapter.id}.md`)
+      .then(res => res.text())
+      .then(mdText => {
+        setMarkdownHtml(renderMarkdown(mdText));
+        setIsLoadingContent(false);
+        localStorage.setItem(`progress_${currentBookId}`, currentChapter.id);
+      })
+      .catch(err => {
+        console.error(DICTIONARY.errors.chapterLoad, err);
+        setMarkdownHtml(`<p class="chapter-load-error">${DICTIONARY.errors.chapterLoadMessage}</p>`);
+        setIsLoadingContent(false);
+      });
+  }, [currentChIndex, toc, currentBookId]);
+
+  if (!currentBookId) {
+    return (
+      <Bookshelf
+        books={bookList}
+        theme={theme}
+        onThemeChange={setTheme}
+        onSelectBook={setCurrentBookId}
+      />
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div class="hero">
-          <img src={heroImg} class="base" width="170" height="179" alt="" />
-          <img src={preactLogo} class="framework" alt="Preact logo" />
-          <img src={viteLogo} class="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/app.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          class="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div class="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img class="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://preactjs.com/" target="_blank">
-                <img class="button-icon" src={preactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg class="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg class="button-icon" role="presentation" aria-hidden="true">
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div class="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <Content
+      toc={toc}
+      theme={theme}
+      onThemeChange={setTheme}
+      currentChIndex={currentChIndex}
+      markdownHtml={markdownHtml}
+      isLoadingContent={isLoadingContent}
+      onClose={() => setCurrentBookId(null)}
+      onSelectChapter={setCurrentChIndex}
+      onPrevious={() => setCurrentChIndex(prev => Math.max(0, prev - 1))}
+      onNext={() => setCurrentChIndex(prev => Math.min(toc.chapters.length - 1, prev + 1))}
+    />
+  );
 }
