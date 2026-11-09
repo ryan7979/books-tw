@@ -1,7 +1,9 @@
+const SITE_TITLE = '心書齋'
+
 export const DICTIONARY = {
-  siteTitle: '心書齋',
+  siteTitle: SITE_TITLE,
   bookshelf: {
-    title: '📚 個人數位書房',
+    title: `📚 ${SITE_TITLE}` ,
     description: '極簡閱讀空間',
     searchPlaceholder: '搜尋書名或作者...',
     emptyMessage: '書架上空空如也，或是找不到對應的書籍。',
