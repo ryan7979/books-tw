@@ -26,8 +26,6 @@ remote
 *.sln
 *.sw?
 .dev.vars
-*.md
-!README.md
 *.sql
 wrangler.toml
 package-lock.json
