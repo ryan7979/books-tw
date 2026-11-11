@@ -138,6 +138,16 @@ html.dark {
   }
   .reader-image-page {
     @apply mx-auto block h-auto w-full max-w-4xl shrink-0 bg-white shadow-lg;
+    -webkit-user-drag: none;
+  }
+  .reader-image-body-zoomed {
+    overflow: auto;
+    touch-action: none;
+  }
+  .reader-image-page-zoomed {
+    max-width: none;
+    margin: 0;
+    flex-shrink: 0;
   }
   .pdf-page {
     @apply mx-auto flex w-full max-w-4xl shrink-0 flex-col items-center;
