@@ -24,9 +24,14 @@ PDF table-of-contents files specify `sourcePdf`, `pdfPageCount`, and each
 chapter's `startPage` and `endPage`. The reader uses those ranges for chapter
 navigation and loads PDF pages incrementally.
 
-Reader URLs include `?book=<book-id>&chapter=<chapter-id>`, so refreshing or
-sharing a reader URL opens the same book and chapter. Browser back/forward
-navigates between the bookshelf and recently viewed chapters.
+Books with a `type` field in `manifest.json` use that value as both the page
+image folder under the book directory and the image file extension. Their TOC
+page ranges are displayed one image at a time; mouse wheel, arrow keys, and
+vertical touch swipes navigate within the current chapter.
+
+Reader URLs use `/book/<book-id>/<chapter-id>`, so refreshing or sharing a
+reader URL opens the same book and chapter. Browser back/forward navigates
+between the bookshelf and recently viewed chapters.
 
 ## Book import tool
 

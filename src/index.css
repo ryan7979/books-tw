@@ -130,6 +130,15 @@ html.dark {
   .pdf-reader-body {
     @apply flex flex-col gap-6;
   }
+  .image-reader-body {
+    @apply flex flex-col items-center justify-start;
+    overscroll-behavior: contain;
+    overflow-x: auto;
+    touch-action: pan-x;
+  }
+  .reader-image-page {
+    @apply mx-auto block h-auto w-full max-w-4xl shrink-0 bg-white shadow-lg;
+  }
   .pdf-page {
     @apply mx-auto flex w-full max-w-4xl shrink-0 flex-col items-center;
   }
@@ -154,14 +163,20 @@ html.dark {
   .reader-page-button {
     @apply rounded-xl px-4 py-2 text-xs font-semibold transition-colors disabled:opacity-30;
   }
-  .reader-page-button-previous {
-    @apply border border-gray-100 bg-gray-50 hover:bg-gray-100;
+  .reader-chapter-button {
+    @apply rounded border border-blue-500 bg-transparent px-4 py-2 font-semibold text-blue-700 hover:border-transparent hover:bg-blue-500 hover:text-white;
   }
-  .reader-page-button-next {
-    @apply bg-blue-600 text-white shadow-xs shadow-blue-200 transition-all hover:bg-blue-700;
+  .reader-chapter-button:disabled {
+    @apply border-gray-300 text-gray-400 hover:border-gray-300 hover:bg-transparent hover:text-gray-400;
   }
   .reader-page-count {
     @apply text-xs font-medium tracking-wider text-gray-400;
+  }
+  .reader-image-page-controls {
+    @apply shrink-0;
+  }
+  .reader-image-page-count {
+    @apply flex items-center bg-gray-200 px-3 text-gray-700;
   }
   .chapter-load-error {
     @apply py-10 text-center text-red-500;
@@ -231,8 +246,14 @@ html.dark {
   .dark .reader-footer {
     @apply border-gray-800 bg-gray-900;
   }
-  .dark .reader-page-button-previous {
-    @apply border-gray-700 bg-gray-800 text-gray-200 hover:bg-gray-700;
+  .dark .reader-chapter-button {
+    @apply border-blue-400 text-blue-300 hover:border-transparent hover:bg-blue-500 hover:text-white;
+  }
+  .dark .reader-chapter-button:disabled {
+    @apply border-gray-700 text-gray-500 hover:border-gray-700 hover:bg-transparent hover:text-gray-500;
+  }
+  .dark .reader-image-page-count {
+    @apply bg-gray-700 text-gray-100;
   }
 }
 
@@ -278,5 +299,55 @@ html.dark {
   /* 隱藏手機瀏覽器討人厭的橫向滾動條 */
   .swipe-container::-webkit-scrollbar {
     display: none;
+  }
+
+  @media (max-width: 47.999rem) {
+    .reader-footer {
+      flex-wrap: nowrap;
+      gap: 0.25rem;
+      padding-inline: 0.5rem;
+    }
+
+    .reader-chapter-button {
+      flex-shrink: 0;
+      white-space: nowrap;
+      padding: 0.375rem 0.5rem;
+      font-size: 0.625rem;
+    }
+
+    .reader-image-page-controls button {
+      padding-inline: 0.5rem;
+    }
+
+    .reader-image-page-count {
+      padding-inline: 0.375rem;
+      white-space: nowrap;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .reader-header,
+    .reader-body,
+    .reader-footer {
+      width: 50vw;
+      max-width: 50vw;
+    }
+
+    .prose-reader,
+    .reader-image-page,
+    .pdf-page,
+    .pdf-page-sentinel {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .reader-body {
+      margin-inline: auto;
+    }
+
+    .prose-reader {
+      margin-inline: auto;
+    }
+
   }
 }

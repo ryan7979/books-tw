@@ -22,6 +22,8 @@ export const DICTIONARY = {
     chapterListLabel: '章節列表',
     previousPage: '⬅ 上一章',
     nextPage: '下一章 ➡',
+    previousImagePage: '🔺',
+    nextImagePage: '🔻',
   },
   errors: {
     bookListLoad: '無法載入全站書單',

@@ -2,11 +2,16 @@ import { useEffect, useState } from 'preact/hooks';
 import snarkdown from 'snarkdown';
 import { Body } from './body.jsx';
 import { PdfBody } from './pdfBody.jsx';
+import { ImageBody } from './imageBody.jsx';
 import { Footer } from './footer.jsx';
 import { Header } from './header.jsx';
 import { DICTIONARY } from '../../utils/dictionary.js';
 import { AppProvider, useAppContext } from '../../context/AppContext.jsx';
-import { fetchBookContents, fetchChapter } from '../../utils/dataService.js';
+import {
+  fetchBookContents,
+  fetchBooks,
+  fetchChapter,
+} from '../../utils/dataService.js';
 
 function renderMarkdown(markdown) {
   return markdown
@@ -32,7 +37,9 @@ export function Content() {
     setCurrentChapterId,
   } = appContext;
   const [toc, setToc] = useState(null);
+  const [bookType, setBookType] = useState(null);
   const [currentChIndex, setCurrentChIndexState] = useState(0);
+  const [currentImagePage, setCurrentImagePage] = useState(null);
   const [markdownHtml, setMarkdownHtml] = useState('');
   const [isLoadingContent, setIsLoadingContent] = useState(false);
 
@@ -41,14 +48,21 @@ export function Content() {
 
     let isActive = true;
     setToc(null);
+    setBookType(null);
     setCurrentChIndexState(0);
     setMarkdownHtml('');
 
-    fetchBookContents(currentBookId)
-      .then(data => {
+    Promise.all([fetchBookContents(currentBookId), fetchBooks()])
+      .then(([data, books]) => {
         if (!isActive) return;
 
+        const book = books.find(item => item.id === currentBookId);
+        if (!book) {
+          throw new Error(`Book not found in manifest: ${currentBookId}`);
+        }
+
         setToc(data);
+        setBookType(typeof book.type === 'string' ? book.type : '');
         const routeIndex = currentChapterId
           ? data.chapters.findIndex(chapter => chapter.id === currentChapterId)
           : -1;
@@ -67,7 +81,10 @@ export function Content() {
         }
       })
       .catch(error => {
-        if (isActive) console.error(DICTIONARY.errors.bookTocLoad, error);
+        if (isActive) {
+          console.error(DICTIONARY.errors.bookTocLoad, error);
+          setBookType('');
+        }
       });
 
     return () => {
@@ -87,9 +104,14 @@ export function Content() {
 
   useEffect(() => {
     const currentChapter = toc?.chapters[currentChIndex];
+    if (currentChapter) setCurrentImagePage(currentChapter.startPage);
+  }, [currentBookId, currentChIndex, toc]);
+
+  useEffect(() => {
+    const currentChapter = toc?.chapters[currentChIndex];
     if (!currentBookId || !currentChapter) return;
 
-    if (toc.sourcePdf) {
+    if (bookType || toc.sourcePdf) {
       setIsLoadingContent(false);
       return;
     }
@@ -116,7 +138,7 @@ export function Content() {
     return () => {
       isActive = false;
     };
-  }, [currentChIndex, toc, currentBookId]);
+  }, [currentChIndex, toc, currentBookId, bookType]);
 
   if (!toc) {
     return <div class="reader-loading">{DICTIONARY.reader.loadingBook}</div>;
@@ -143,6 +165,14 @@ export function Content() {
       setCurrentChIndex(index => index + 1);
     }
   };
+  const currentChapter = toc.chapters[currentChIndex];
+  const onImagePageChange = direction => {
+    if (!bookType || !currentChapter) return;
+    setCurrentImagePage(page => Math.min(
+      currentChapter.endPage,
+      Math.max(currentChapter.startPage, page + direction),
+    ));
+  };
   const readerContextValue = {
     ...appContext,
     toc,
@@ -150,6 +180,13 @@ export function Content() {
     setCurrentChIndex,
     markdownHtml,
     isLoadingContent,
+    readerType: bookType,
+    currentImagePage,
+    setCurrentImagePage,
+    onPreviousImagePage: () => onImagePageChange(-1),
+    onNextImagePage: () => onImagePageChange(1),
+    isFirstImagePage: currentImagePage <= currentChapter.startPage,
+    isLastImagePage: currentImagePage >= currentChapter.endPage,
     scrollStorageKey: `scroll_${currentBookId}_${toc.chapters[currentChIndex]?.id || ''}`,
     onClose,
     onPrevious,
@@ -160,7 +197,9 @@ export function Content() {
     <AppProvider value={readerContextValue}>
       <div class="reader-page">
         <Header />
-        {toc.sourcePdf
+        {bookType
+          ? <ImageBody key={toc.chapters[currentChIndex].id} folder={bookType} />
+          : toc.sourcePdf
           ? <PdfBody key={toc.chapters[currentChIndex].id} />
           : <Body />}
         <Footer />
