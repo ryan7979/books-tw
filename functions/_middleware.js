@@ -60,11 +60,18 @@ async function hasGateCookie(request, secret) {
 function isPublicAsset(pathname) {
   return pathname === "/favicon.ico" ||
     pathname.startsWith("/assets/") ||
-    pathname.startsWith("/public/books/") ||
     pathname.startsWith("/src/") ||
     pathname.startsWith("/@") ||
-    pathname.startsWith("/api/") ||
     /\.(?:css|js|mjs|map|wasm|ico|png|jpe?g|gif|svg|webp|avif|woff2?|ttf|eot|md)$/i.test(pathname);
+}
+
+function isPrivateBookAsset(pathname) {
+  return pathname === "/books" ||
+    pathname.startsWith("/books/") ||
+    pathname === "/_private" ||
+    pathname.startsWith("/_private/") ||
+    pathname === "/public/books" ||
+    pathname.startsWith("/public/books/");
 }
 
 export async function onRequest(context) {
@@ -73,6 +80,13 @@ export async function onRequest(context) {
   const REQUIRED_VALUE = env?.REQUIRED_VALUE;
   const gateSecret = env?.GATE_COOKIE_SECRET || REQUIRED_VALUE;
   const url = new URL(request.url);
+
+  if (isPrivateBookAsset(url.pathname)) {
+    return new Response("Not Found", {
+      status: 404,
+      headers: { "Cache-Control": "no-store" },
+    });
+  }
 
   if (isPublicAsset(url.pathname)) {
     return context.next();

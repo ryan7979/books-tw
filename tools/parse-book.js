@@ -1,11 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import TurndownService from 'turndown';
 
-const EPUB_FILE_PATH = './epubs/demi-gods-and-semi-devils.epub';
+const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'demi-gods-and-semi-devils.epub');
 const BOOK_ID = 'demi-gods-and-semi-devils';
+const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
 
 const turndownService = new TurndownService({
@@ -214,7 +217,7 @@ function extractBodyHtml(html, entryName) {
 }
 
 async function convertEpubToMarkdown() {
-  const baseOutputDir = path.join('./public/books', BOOK_ID);
+  const baseOutputDir = path.join(BOOKS_DIR, BOOK_ID);
   const imagesOutputDir = path.join(baseOutputDir, 'images');
   fs.mkdirSync(imagesOutputDir, { recursive: true });
 
@@ -284,7 +287,7 @@ async function convertEpubToMarkdown() {
     if (coverEntry) registerImage(path.posix.basename(coverEntry.entryName));
   }
 
-  const manifestPath = './public/books/manifest.json';
+  const manifestPath = path.join(BOOKS_DIR, 'manifest.json');
 
   const imageMap = new Map();
   let originalImageBytes = 0;
@@ -298,7 +301,7 @@ async function convertEpubToMarkdown() {
     fs.writeFileSync(outputPath, optimized);
     imageMap.set(
       imageKey,
-      `/books/${BOOK_ID}/images/${outputName}`,
+      `/api/getImage?bookId=${BOOK_ID}&name=${encodeURIComponent(outputName)}`,
     );
     originalImageBytes += original.length;
     optimizedImageBytes += optimized.length;
@@ -358,7 +361,9 @@ async function convertEpubToMarkdown() {
       || epubMetadata.title
       || BOOK_ID,
     ...(coverName
-      ? { cover: `/books/${BOOK_ID}/images/${coverName}` }
+      ? {
+        cover: `/api/getImage?bookId=${BOOK_ID}&name=${encodeURIComponent(coverName)}`,
+      }
       : {}),
   };
   const existingBookIndex = manifest.findIndex(item => item.id === BOOK_ID);

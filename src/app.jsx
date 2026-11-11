@@ -38,8 +38,11 @@ export function App() {
   }, [theme]);
 
   useEffect(() => {
-    fetch('/books/manifest.json')
-      .then(res => res.json())
+    fetch('/api/getBooks')
+      .then(res => {
+        if (!res.ok) throw new Error(`Book list request failed: ${res.status}`);
+        return res.json();
+      })
       .then(data => setBookList(data))
       .catch(err => console.error(DICTIONARY.errors.bookListLoad, err));
   }, []);
@@ -50,8 +53,11 @@ export function App() {
       return;
     }
 
-    fetch(`/books/${currentBookId}/toc.json`)
-      .then(res => res.json())
+    fetch(`/api/getChapter?bookId=${encodeURIComponent(currentBookId)}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`Book contents request failed: ${res.status}`);
+        return res.json();
+      })
       .then(data => {
         setToc(data);
         const savedChId = localStorage.getItem(`progress_${currentBookId}`);
@@ -75,8 +81,15 @@ export function App() {
 
     setIsLoadingContent(true);
 
-    fetch(`/books/${currentBookId}/${currentChapter.id}.md`)
-      .then(res => res.text())
+    const params = new URLSearchParams({
+      bookId: currentBookId,
+      chapterId: currentChapter.id,
+    });
+    fetch(`/api/getChapter?${params}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`Chapter request failed: ${res.status}`);
+        return res.text();
+      })
       .then(mdText => {
         setMarkdownHtml(renderMarkdown(mdText));
         setIsLoadingContent(false);
