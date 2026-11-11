@@ -5,9 +5,7 @@ function ImagePage({
   bookId,
   folder,
   pageNumber,
-  onImageLoad,
-  isZoomed,
-  imageSize,
+  imageScale,
 }) {
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
@@ -53,20 +51,11 @@ function ImagePage({
     : imageUrl
       ? (
         <img
-          class={`reader-image-page${isZoomed ? ' reader-image-page-zoomed' : ''}`}
+          class="reader-image-page"
           src={imageUrl}
           alt=""
           draggable="false"
-          style={isZoomed && imageSize
-            ? {
-              width: `${imageSize.width}px`,
-              height: `${imageSize.height}px`,
-            }
-            : undefined}
-          onLoad={event => onImageLoad({
-            width: event.currentTarget.naturalWidth,
-            height: event.currentTarget.naturalHeight,
-          })}
+          style={{ transform: `scale(${imageScale})` }}
         />
       )
       : <p class="pdf-page-loading">載入圖片…</p>;
@@ -82,12 +71,11 @@ export function ImageBody({ folder }) {
   } = useAppContext();
   const bodyRef = useRef(null);
   const touchStartRef = useRef(null);
-  const lastTapRef = useRef(null);
-  const panRef = useRef(null);
+  const pinchRef = useRef(null);
+  const imageScaleRef = useRef(1);
   const chapter = toc.chapters[currentChIndex];
   const pageNumber = currentImagePage ?? chapter.startPage;
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [imageSize, setImageSize] = useState(null);
+  const [imageScale, setImageScale] = useState(1);
 
   useEffect(() => {
     setCurrentImagePage(chapter.startPage);
@@ -95,8 +83,10 @@ export function ImageBody({ folder }) {
   }, [currentBookId, chapter.id, chapter.startPage]);
 
   useEffect(() => {
-    setIsZoomed(false);
-    setImageSize(null);
+    imageScaleRef.current = 1;
+    setImageScale(1);
+    pinchRef.current = null;
+    touchStartRef.current = null;
     if (bodyRef.current) {
       bodyRef.current.scrollLeft = 0;
       bodyRef.current.scrollTop = 0;
@@ -137,13 +127,62 @@ export function ImageBody({ folder }) {
   }, [chapter.startPage, chapter.endPage]);
 
   const handleTouchStart = event => {
+    if (event.touches.length >= 2) {
+      const [first, second] = event.touches;
+      const startDistance = Math.hypot(
+        second.clientX - first.clientX,
+        second.clientY - first.clientY,
+      );
+      if (startDistance === 0) return;
+      pinchRef.current = {
+        startDistance,
+        startScale: imageScaleRef.current,
+      };
+      touchStartRef.current = null;
+      return;
+    }
+
     const touch = event.changedTouches[0];
     touchStartRef.current = touch
       ? { x: touch.screenX, y: touch.screenY, time: Date.now() }
       : null;
   };
 
+  const handleTouchMove = event => {
+    if (event.touches.length < 2) return;
+    event.preventDefault();
+
+    const [first, second] = event.touches;
+    const distance = Math.hypot(
+      second.clientX - first.clientX,
+      second.clientY - first.clientY,
+    );
+    if (distance === 0) return;
+    if (!pinchRef.current) {
+      pinchRef.current = {
+        startDistance: distance,
+        startScale: imageScaleRef.current,
+      };
+      touchStartRef.current = null;
+      return;
+    }
+
+    const nextScale = Math.min(
+      4,
+      Math.max(1, pinchRef.current.startScale
+        * distance / pinchRef.current.startDistance),
+    );
+    imageScaleRef.current = nextScale;
+    setImageScale(nextScale);
+  };
+
   const handleTouchEnd = event => {
+    if (pinchRef.current) {
+      if (event.touches.length < 2) pinchRef.current = null;
+      touchStartRef.current = null;
+      return;
+    }
+
     const start = touchStartRef.current;
     touchStartRef.current = null;
     const touch = event.changedTouches[0];
@@ -151,84 +190,28 @@ export function ImageBody({ folder }) {
 
     const deltaY = touch.screenY - start.y;
     const deltaX = touch.screenX - start.x;
-    const distance = Math.hypot(deltaX, deltaY);
-    const now = Date.now();
-
-    if (isZoomed) {
-      if (distance < 24 && now - start.time < 300) {
-        const lastTap = lastTapRef.current;
-        if (lastTap && now - lastTap.time < 350
-          && Math.hypot(touch.screenX - lastTap.x, touch.screenY - lastTap.y) < 40) {
-          setIsZoomed(false);
-          lastTapRef.current = null;
-        } else {
-          lastTapRef.current = { x: touch.screenX, y: touch.screenY, time: now };
-        }
-      }
-      return;
-    }
-
-    if (distance < 24 && now - start.time < 300
-      && window.matchMedia('(max-width: 47.999rem)').matches) {
-      const lastTap = lastTapRef.current;
-      if (lastTap && now - lastTap.time < 350
-        && Math.hypot(touch.screenX - lastTap.x, touch.screenY - lastTap.y) < 40) {
-        if (imageSize) setIsZoomed(true);
-        lastTapRef.current = null;
-      } else {
-        lastTapRef.current = { x: touch.screenX, y: touch.screenY, time: now };
-      }
-      return;
-    }
-
-    lastTapRef.current = null;
     if (Math.abs(deltaY) < 50 || Math.abs(deltaY) <= Math.abs(deltaX)) return;
     changePage(deltaY < 0 ? 1 : -1);
-  };
-
-  const handlePointerDown = event => {
-    if (!isZoomed || event.pointerType !== 'touch') return;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    panRef.current = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      scrollLeft: event.currentTarget.scrollLeft,
-      scrollTop: event.currentTarget.scrollTop,
-    };
-  };
-
-  const handlePointerMove = event => {
-    const pan = panRef.current;
-    if (!pan || pan.pointerId !== event.pointerId) return;
-    event.currentTarget.scrollLeft = pan.scrollLeft - (event.clientX - pan.x);
-    event.currentTarget.scrollTop = pan.scrollTop - (event.clientY - pan.y);
-  };
-
-  const handlePointerEnd = event => {
-    if (panRef.current?.pointerId === event.pointerId) panRef.current = null;
   };
 
   return (
     <main
       ref={bodyRef}
-      class={`reader-body image-reader-body${isZoomed ? ' image-reader-body-zoomed' : ''}`}
+      class="reader-body image-reader-body"
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onTouchCancel={() => { touchStartRef.current = null; }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerEnd}
-      onPointerCancel={handlePointerEnd}
+      onTouchCancel={() => {
+        touchStartRef.current = null;
+        pinchRef.current = null;
+      }}
     >
       <ImagePage
         key={`${currentBookId}-${pageNumber}`}
         bookId={currentBookId}
         folder={folder}
         pageNumber={pageNumber}
-        isZoomed={isZoomed}
-        imageSize={imageSize}
-        onImageLoad={setImageSize}
+        imageScale={imageScale}
       />
     </main>
   );
