@@ -6,8 +6,8 @@ import sharp from 'sharp';
 import TurndownService from 'turndown';
 
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'demi-gods-and-semi-devils.epub');
-const BOOK_ID = 'demi-gods-and-semi-devils';
+const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'its-time-for-zhuangzi-2.pdf');
+const BOOK_ID = 'its-time-for-zhuangzi-2';
 const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
 
@@ -216,7 +216,55 @@ function extractBodyHtml(html, entryName) {
   return match[1];
 }
 
+function importPdf() {
+  const manifestPath = path.join(BOOKS_DIR, 'manifest.json');
+  const pdfName = `${BOOK_ID}.pdf`;
+  const bookDir = path.join(BOOKS_DIR, BOOK_ID);
+  const destinationPath = path.join(bookDir, pdfName);
+  const manifest = fs.existsSync(manifestPath)
+    ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+    : [];
+  if (!Array.isArray(manifest)) {
+    throw new Error('Book manifest has an invalid format');
+  }
+  if (!fs.existsSync(EPUB_FILE_PATH)) {
+    throw new Error(`PDF file not found: ${EPUB_FILE_PATH}`);
+  }
+  if (fs.existsSync(destinationPath)) {
+    throw new Error(`PDF destination already exists: ${destinationPath}`);
+  }
+
+  const existingBookIndex = manifest.findIndex(item => item.id === BOOK_ID);
+  const existingBook = existingBookIndex === -1 ? null : manifest[existingBookIndex];
+  const title = existingBook?.title || BOOK_ID;
+  const bookRecord = {
+    ...(existingBook || {}),
+    id: BOOK_ID,
+    title,
+    author: existingBook?.author || 'Unknown author',
+    description: existingBook?.description || title,
+    pdf: `/books/${BOOK_ID}/${pdfName}`,
+  };
+
+  fs.mkdirSync(bookDir, { recursive: true });
+  fs.renameSync(EPUB_FILE_PATH, destinationPath);
+  if (existingBookIndex === -1) {
+    manifest.push(bookRecord);
+  } else {
+    manifest[existingBookIndex] = bookRecord;
+  }
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
+
+  console.log(`Moved PDF to ${destinationPath}`);
+  console.log(`Updated ${manifestPath}`);
+}
+
 async function convertEpubToMarkdown() {
+  if (path.extname(EPUB_FILE_PATH).toLowerCase() === '.pdf') {
+    importPdf();
+    return;
+  }
+
   const baseOutputDir = path.join(BOOKS_DIR, BOOK_ID);
   const imagesOutputDir = path.join(baseOutputDir, 'images');
   fs.mkdirSync(imagesOutputDir, { recursive: true });
@@ -347,6 +395,8 @@ async function convertEpubToMarkdown() {
   const manifest = fs.existsSync(manifestPath)
     ? JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
     : [];
+  const existingBookIndex = manifest.findIndex(item => item.id === BOOK_ID);
+  const existingBook = existingBookIndex === -1 ? null : manifest[existingBookIndex];
   const coverEntry = epubMetadata.coverEntryName
     && entryMap.get(epubMetadata.coverEntryName);
   const coverName = coverEntry
@@ -357,16 +407,16 @@ async function convertEpubToMarkdown() {
     title: epubMetadata.title || BOOK_ID,
     author: epubMetadata.author || 'Unknown author',
     description: epubMetadata.description
-      || manifest.find(item => item.id === BOOK_ID)?.description
+      || existingBook?.description
       || epubMetadata.title
       || BOOK_ID,
+    ...(existingBook?.pdf ? { pdf: existingBook.pdf } : {}),
     ...(coverName
       ? {
         cover: `/api/getImage?bookId=${BOOK_ID}&name=${encodeURIComponent(coverName)}`,
       }
       : {}),
   };
-  const existingBookIndex = manifest.findIndex(item => item.id === BOOK_ID);
   if (existingBookIndex === -1) {
     manifest.push(bookRecord);
   } else {
@@ -386,6 +436,6 @@ async function convertEpubToMarkdown() {
 }
 
 convertEpubToMarkdown().catch(error => {
-  console.error('EPUB conversion failed:', error);
+  console.error('Book import failed:', error);
   process.exitCode = 1;
 });

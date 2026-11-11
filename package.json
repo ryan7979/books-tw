@@ -4,13 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build && bunx wrangler pages dev",
     "build": "vite build",
     "preview": "vite preview",
     "parse-book": "npm --prefix tools run parse-book"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.5",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.5.438",
     "preact": "^11.1.1",
     "snarkdown": "^2.0.0",
     "tailwindcss": "^4.3.5"

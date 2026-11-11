@@ -1,77 +1,116 @@
 {
   "bookTitle": "莊子，從心開始",
+  "sourcePdf": "its-time-for-zhuangzi-2.pdf",
+  "pdfPageCount": 278,
+  "pageNumbering": "1-based PDF page index",
   "chapters": [
     {
       "id": "ch-001",
-      "title": "封面"
+      "title": "封面",
+      "startPage": 1,
+      "endPage": 1
     },
     {
       "id": "ch-002",
-      "title": "《莊子，從心開始》序"
+      "title": "推薦序：演繹更有生命力的現代《莊子》",
+      "startPage": 2,
+      "endPage": 4
     },
     {
       "id": "ch-003",
-      "title": "壹　北冥有魚──設定怎樣的人生目標才能幸福逍遙？"
+      "title": "推薦序：當大腿窩被摸了一把的時候",
+      "startPage": 5,
+      "endPage": 7
     },
     {
       "id": "ch-004",
-      "title": "貳　堯讓天下──你的工作想照亮誰？"
+      "title": "推薦序：行走於人間世的莊學實踐者",
+      "startPage": 8,
+      "endPage": 10
     },
     {
       "id": "ch-005",
-      "title": "參　大瓠之種──什麼是有用？"
+      "title": "序：從寸心到人間",
+      "startPage": 11,
+      "endPage": 21
     },
     {
       "id": "ch-006",
-      "title": "壹　南郭子綦──《莊子》書中的聖人形象"
+      "title": "【肆】人間世",
+      "startPage": 22,
+      "endPage": 22
     },
     {
       "id": "ch-007",
-      "title": "貳　莫知所萌──為什麼我的心情不好？"
+      "title": "肆一壹 顏回請行",
+      "startPage": 23,
+      "endPage": 83
     },
     {
       "id": "ch-008",
-      "title": "參　莫若以明──告別負面情緒的方法"
+      "title": "肆一貳 葉公子高",
+      "startPage": 84,
+      "endPage": 116
     },
     {
       "id": "ch-009",
-      "title": "肆　惡乎知之──你真的知道誰對誰錯、孰好孰壞嗎？"
+      "title": "肆一參 顏闔將傅",
+      "startPage": 117,
+      "endPage": 135
     },
     {
       "id": "ch-010",
-      "title": "伍　莊周夢蝶──我是誰？誰是我？"
+      "title": "肆一肆 匠石之齊",
+      "startPage": 136,
+      "endPage": 152
     },
     {
       "id": "ch-011",
-      "title": "壹　生也有涯──有限生命，為了什麼求知？"
+      "title": "肆一伍 南伯子綦",
+      "startPage": 153,
+      "endPage": 163
     },
     {
       "id": "ch-012",
-      "title": "貳　庖丁解牛──《莊子》書中的職人條件"
+      "title": "肆一陸 支離疏者",
+      "startPage": 164,
+      "endPage": 170
     },
     {
       "id": "ch-013",
-      "title": "參　惡乎介也──怎麼走、站好？"
+      "title": "肆一柒 楚狂接輿",
+      "startPage": 171,
+      "endPage": 183
     },
     {
       "id": "ch-014",
-      "title": "肆　澤雉十步──比滿足感官嗜欲更重要的事"
+      "title": "【伍】德充符",
+      "startPage": 184,
+      "endPage": 184
     },
     {
       "id": "ch-015",
-      "title": "伍　帝之縣解──人活天地間最大的鬆綁與解脫"
+      "title": "伍一壹 喪足遺土",
+      "startPage": 185,
+      "endPage": 232
     },
     {
       "id": "ch-016",
-      "title": "壹　莊子「渾沌」意象的語意實踐──生命的開始與極致境界"
+      "title": "伍一貳 形有所忘",
+      "startPage": 233,
+      "endPage": 266
     },
     {
       "id": "ch-017",
-      "title": "貳　「神凝」與「一志」──歸返「渾沌」的入手與究竟"
+      "title": "伍一參 所謂無情",
+      "startPage": 267,
+      "endPage": 276
     },
     {
       "id": "ch-018",
-      "title": "版權頁"
+      "title": "版權頁",
+      "startPage": 277,
+      "endPage": 278
     }
   ]
 }

@@ -10,10 +10,10 @@ html.dark {
 
 @layer components {
   .bookshelf-page {
-    @apply min-h-screen bg-gray-50 px-4 py-8 text-gray-900;
+    @apply flex h-dvh flex-col overflow-hidden bg-gray-50 px-4 py-8 text-gray-900;
   }
   .bookshelf-header {
-    @apply mx-auto mb-8 max-w-5xl text-center sm:text-left;
+    @apply mx-auto mb-8 w-full max-w-5xl shrink-0 text-center sm:text-left;
   }
   .bookshelf-topbar {
     @apply flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
@@ -31,7 +31,10 @@ html.dark {
     @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
   .bookshelf-content {
-    @apply mx-auto max-w-5xl;
+    @apply mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-y-auto overscroll-contain;
+  }
+  .bookshelf-footer {
+    @apply mx-auto mt-8 w-full max-w-5xl shrink-0 text-right text-xs text-gray-400;
   }
   .bookshelf-empty {
     @apply py-20 text-center text-gray-400;
@@ -124,6 +127,24 @@ html.dark {
   .reader-body {
     @apply min-h-0 w-full flex-1 overflow-y-auto px-4 py-6;
   }
+  .pdf-reader-body {
+    @apply flex flex-col gap-6;
+  }
+  .pdf-page {
+    @apply mx-auto flex w-full max-w-4xl shrink-0 flex-col items-center;
+  }
+  .pdf-page-canvas {
+    @apply h-auto w-full max-w-full bg-white shadow-lg;
+  }
+  .pdf-page-loading {
+    @apply py-3 text-center text-xs text-gray-400;
+  }
+  .pdf-page-error {
+    @apply w-full rounded-lg bg-red-50 p-4 text-center text-sm text-red-600;
+  }
+  .pdf-page-sentinel {
+    @apply mx-auto min-h-8 w-full max-w-4xl shrink-0 text-center;
+  }
   .reader-body-loading {
     @apply animate-pulse py-32 text-center text-sm text-gray-300;
   }
@@ -163,6 +184,7 @@ html.dark {
     @apply border-gray-700 bg-gray-900 text-gray-100;
   }
   .dark .bookshelf-empty,
+  .dark .bookshelf-footer,
   .dark .book-progress,
   .dark .reader-book-title {
     @apply text-gray-400;
@@ -202,6 +224,9 @@ html.dark {
   }
   .dark .reader-body-loading {
     @apply text-gray-500;
+  }
+  .dark .pdf-page-error {
+    @apply bg-red-950 text-red-300;
   }
   .dark .reader-footer {
     @apply border-gray-800 bg-gray-900;

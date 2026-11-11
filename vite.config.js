@@ -22,5 +22,16 @@ export default defineConfig({
 				);
 			},
 		},
+		{
+			name: 'pdfjs-wasm',
+			apply: 'build',
+			closeBundle() {
+				cpSync(
+					path.join(projectRoot, 'node_modules', 'pdfjs-dist', 'wasm'),
+					path.join(projectRoot, 'dist', 'assets', 'pdfjs-wasm'),
+					{ recursive: true },
+				);
+			},
+		},
 	]
 });

@@ -1,6 +1,16 @@
-import { DICTIONARY } from '../utils/dictionary.js';
+import { DICTIONARY } from '../../utils/dictionary.js';
+import { useAppContext } from '../../context/AppContext.jsx';
 
-export function Footer({ currentChIndex, chapterCount, isLoadingContent, onPrevious, onNext }) {
+export function Footer() {
+  const {
+    toc,
+    currentChIndex,
+    isLoadingContent,
+    onPrevious,
+    onNext,
+  } = useAppContext();
+  const chapterCount = toc.chapters.length;
+
   return (
     <footer class="reader-footer">
       <button

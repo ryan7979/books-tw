@@ -1,4 +1,4 @@
-const SITE_TITLE = '心書齋'
+const SITE_TITLE = '無何有書齋'
 
 export const DICTIONARY = {
   siteTitle: SITE_TITLE,
@@ -7,6 +7,7 @@ export const DICTIONARY = {
     description: '極簡閱讀空間',
     searchPlaceholder: '搜尋書名或作者...',
     emptyMessage: '書架上空空如也，或是找不到對應的書籍。',
+    bookCount: (visible, total) => `顯示 ${visible} / ${total} 本藏書`,
     authorPrefix: '作者：',
     continueReading: '📖 繼續閱讀',
     notStarted: '✨ 尚未開始',
@@ -15,12 +16,12 @@ export const DICTIONARY = {
     close: '🗙 關閉返回',
     loadingTitle: '載入中',
     loadingBook: '正在開啟書籍...',
-    loadingChapter: '⏳ 正在翻開下一頁...',
+    loadingChapter: '⏳ 正在翻開下一章...',
     chapterListClose: '關閉章節列表',
     chapterListOpen: '開啟章節列表',
     chapterListLabel: '章節列表',
-    previousPage: '⬅ 上一頁',
-    nextPage: '下一頁 ➡',
+    previousPage: '⬅ 上一章',
+    nextPage: '下一章 ➡',
   },
   errors: {
     bookListLoad: '無法載入全站書單',

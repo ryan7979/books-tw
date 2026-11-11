@@ -1,13 +1,15 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { DICTIONARY } from '../utils/dictionary.js';
+import { DICTIONARY } from '../../utils/dictionary.js';
+import { useAppContext } from '../../context/AppContext.jsx';
 
-export function Body({
-  markdownHtml,
-  isLoadingContent,
-  scrollStorageKey,
-  onPrevious,
-  onNext,
-}) {
+export function Body() {
+  const {
+    markdownHtml,
+    isLoadingContent,
+    scrollStorageKey,
+    onPrevious,
+    onNext,
+  } = useAppContext();
   const bodyRef = useRef(null);
   const touchStart = useRef(null);
   const saveTimer = useRef(null);

@@ -1,23 +1,18 @@
-import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import snarkdown from 'snarkdown';
-import { Bookshelf } from './components/Bookshelf.jsx';
-import { Content } from './components/Content.jsx';
-import { DICTIONARY } from './utils/dictionary.js';
+import { Bookshelf } from './components/bookShelf/index.jsx';
+import { Content } from './components/bookContent/index.jsx';
+import { AppProvider } from './context/AppContext.jsx';
 
-function renderMarkdown(markdown) {
-  return markdown
-    .split(/\r?\n[ \t]*\r?\n+/)
-    .map(block => block.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, ''))
-    .filter(Boolean)
-    .map(block => {
-      const html = snarkdown(block);
-      return /^<(?:h[1-6]|ul|ol|blockquote|pre|table|hr|div|figure|section|p)\b/i
-        .test(html)
-        ? html
-        : `<p>${html}</p>`;
-    })
-    .join('\n');
+function getRoute(location) {
+  const params = new URLSearchParams(location.search);
+  const bookId = params.get('book');
+  return {
+    bookId: bookId && /^[a-z0-9-]+$/i.test(bookId) ? bookId : null,
+    chapterId: bookId && /^ch-\d{3}$/.test(params.get('chapter') || '')
+      ? params.get('chapter')
+      : null,
+  };
 }
 
 export function App() {
@@ -25,107 +20,52 @@ export function App() {
     const savedTheme = localStorage.getItem('theme');
     return savedTheme === 'dark' ? 'dark' : 'light';
   });
-  const [currentBookId, setCurrentBookId] = useState(null);
-  const [bookList, setBookList] = useState([]);
-  const [toc, setToc] = useState(null);
-  const [currentChIndex, setCurrentChIndex] = useState(0);
-  const [markdownHtml, setMarkdownHtml] = useState('');
-  const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const [route, setRoute] = useState(() => getRoute(window.location));
+
+  useEffect(() => {
+    const handlePopState = () => setRoute(getRoute(window.location));
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigate = (bookId, chapterId, replace = false) => {
+    const url = new URL(window.location.href);
+    if (bookId) {
+      url.searchParams.set('book', bookId);
+      if (chapterId) url.searchParams.set('chapter', chapterId);
+      else url.searchParams.delete('chapter');
+    } else {
+      url.searchParams.delete('book');
+      url.searchParams.delete('chapter');
+    }
+
+    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+    if (replace) window.history.replaceState(null, '', nextUrl);
+    else window.history.pushState(null, '', nextUrl);
+    setRoute({ bookId: bookId || null, chapterId: chapterId || null });
+  };
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  useEffect(() => {
-    fetch('/api/getBooks')
-      .then(res => {
-        if (!res.ok) throw new Error(`Book list request failed: ${res.status}`);
-        return res.json();
-      })
-      .then(data => setBookList(data))
-      .catch(err => console.error(DICTIONARY.errors.bookListLoad, err));
-  }, []);
-
-  useEffect(() => {
-    if (!currentBookId) {
-      setToc(null);
-      return;
-    }
-
-    fetch(`/api/getChapter?bookId=${encodeURIComponent(currentBookId)}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Book contents request failed: ${res.status}`);
-        return res.json();
-      })
-      .then(data => {
-        setToc(data);
-        const savedChId = localStorage.getItem(`progress_${currentBookId}`);
-        if (savedChId) {
-          const index = data.chapters.findIndex(ch => ch.id === savedChId);
-          if (index !== -1) {
-            setCurrentChIndex(index);
-            return;
-          }
-        }
-        setCurrentChIndex(0);
-      })
-      .catch(err => console.error(DICTIONARY.errors.bookTocLoad, err));
-  }, [currentBookId]);
-
-  useEffect(() => {
-    if (!toc || !currentBookId) return;
-
-    const currentChapter = toc.chapters[currentChIndex];
-    if (!currentChapter) return;
-
-    setIsLoadingContent(true);
-
-    const params = new URLSearchParams({
-      bookId: currentBookId,
-      chapterId: currentChapter.id,
-    });
-    fetch(`/api/getChapter?${params}`)
-      .then(res => {
-        if (!res.ok) throw new Error(`Chapter request failed: ${res.status}`);
-        return res.text();
-      })
-      .then(mdText => {
-        setMarkdownHtml(renderMarkdown(mdText));
-        setIsLoadingContent(false);
-        localStorage.setItem(`progress_${currentBookId}`, currentChapter.id);
-      })
-      .catch(err => {
-        console.error(DICTIONARY.errors.chapterLoad, err);
-        setMarkdownHtml(`<p class="chapter-load-error">${DICTIONARY.errors.chapterLoadMessage}</p>`);
-        setIsLoadingContent(false);
-      });
-  }, [currentChIndex, toc, currentBookId]);
-
-  if (!currentBookId) {
-    return (
-      <Bookshelf
-        books={bookList}
-        theme={theme}
-        onThemeChange={setTheme}
-        onSelectBook={setCurrentBookId}
-      />
-    );
-  }
+  const setCurrentBookId = bookId => navigate(bookId, null);
+  const setCurrentChapterId = (chapterId, replace = false) => {
+    if (route.bookId) navigate(route.bookId, chapterId, replace);
+  };
+  const contextValue = {
+    theme,
+    setTheme,
+    currentBookId: route.bookId,
+    setCurrentBookId,
+    currentChapterId: route.chapterId,
+    setCurrentChapterId,
+  };
 
   return (
-    <Content
-      toc={toc}
-      scrollStorageKey={`scroll_${currentBookId}_${toc?.chapters[currentChIndex]?.id || ''}`}
-      theme={theme}
-      onThemeChange={setTheme}
-      currentChIndex={currentChIndex}
-      markdownHtml={markdownHtml}
-      isLoadingContent={isLoadingContent}
-      onClose={() => setCurrentBookId(null)}
-      onSelectChapter={setCurrentChIndex}
-      onPrevious={() => setCurrentChIndex(prev => Math.max(0, prev - 1))}
-      onNext={() => setCurrentChIndex(prev => Math.min(toc.chapters.length - 1, prev + 1))}
-    />
+    <AppProvider value={contextValue}>
+      {route.bookId ? <Content /> : <Bookshelf />}
+    </AppProvider>
   );
 }

@@ -1,13 +1,22 @@
 import { useState } from 'preact/hooks';
-import { DICTIONARY } from '../utils/dictionary.js';
-import { ThemeSelector } from './ThemeSelector.jsx';
+import { DICTIONARY } from '../../utils/dictionary.js';
+import { useAppContext } from '../../context/AppContext.jsx';
+import { ThemeSelector } from '../ThemeSelector.jsx';
 
-export function Header({ toc, theme, onThemeChange, currentChIndex, onClose, onSelectChapter }) {
+export function Header() {
+  const {
+    toc,
+    currentChIndex,
+    setCurrentChIndex,
+    onClose,
+  } = useAppContext();
   const [isChapterListOpen, setIsChapterListOpen] = useState(false);
-  const currentChapter = toc.chapters[currentChIndex] || { title: DICTIONARY.reader.loadingTitle };
+  const currentChapter = toc.chapters[currentChIndex] || {
+    title: DICTIONARY.reader.loadingTitle,
+  };
 
   const selectChapter = index => {
-    onSelectChapter(index);
+    setCurrentChIndex(index);
     setIsChapterListOpen(false);
   };
 
@@ -25,7 +34,7 @@ export function Header({ toc, theme, onThemeChange, currentChIndex, onClose, onS
           <div class="reader-chapter-title">{currentChapter.title}</div>
         </div>
         <div class="reader-header-tools">
-          <ThemeSelector theme={theme} onChange={onThemeChange} />
+          <ThemeSelector />
           <button
             type="button"
             onClick={() => setIsChapterListOpen(open => !open)}
