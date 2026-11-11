@@ -6,6 +6,7 @@ function ImagePage({
   folder,
   pageNumber,
   imageScale,
+  imagePan,
 }) {
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
@@ -55,7 +56,9 @@ function ImagePage({
           src={imageUrl}
           alt=""
           draggable="false"
-          style={{ transform: `scale(${imageScale})` }}
+          style={{
+            transform: `translate(${imagePan.x}px, ${imagePan.y}px) scale(${imageScale})`,
+          }}
         />
       )
       : <p class="pdf-page-loading">載入圖片…</p>;
@@ -72,10 +75,12 @@ export function ImageBody({ folder }) {
   const bodyRef = useRef(null);
   const touchStartRef = useRef(null);
   const pinchRef = useRef(null);
+  const panRef = useRef(null);
   const imageScaleRef = useRef(1);
   const chapter = toc.chapters[currentChIndex];
   const pageNumber = currentImagePage ?? chapter.startPage;
   const [imageScale, setImageScale] = useState(1);
+  const [imagePan, setImagePan] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     setCurrentImagePage(chapter.startPage);
@@ -85,7 +90,9 @@ export function ImageBody({ folder }) {
   useEffect(() => {
     imageScaleRef.current = 1;
     setImageScale(1);
+    setImagePan({ x: 0, y: 0 });
     pinchRef.current = null;
+    panRef.current = null;
     touchStartRef.current = null;
     if (bodyRef.current) {
       bodyRef.current.scrollLeft = 0;
@@ -146,39 +153,74 @@ export function ImageBody({ folder }) {
     touchStartRef.current = touch
       ? { x: touch.screenX, y: touch.screenY, time: Date.now() }
       : null;
+    if (touch && imageScaleRef.current > 1) {
+      panRef.current = {
+        x: touch.screenX,
+        y: touch.screenY,
+        startPan: imagePan,
+        moved: false,
+      };
+    } else {
+      panRef.current = null;
+    }
   };
 
   const handleTouchMove = event => {
-    if (event.touches.length < 2) return;
-    event.preventDefault();
+    if (event.touches.length >= 2) {
+      event.preventDefault();
 
-    const [first, second] = event.touches;
-    const distance = Math.hypot(
-      second.clientX - first.clientX,
-      second.clientY - first.clientY,
-    );
-    if (distance === 0) return;
-    if (!pinchRef.current) {
-      pinchRef.current = {
-        startDistance: distance,
-        startScale: imageScaleRef.current,
-      };
-      touchStartRef.current = null;
+      const [first, second] = event.touches;
+      const distance = Math.hypot(
+        second.clientX - first.clientX,
+        second.clientY - first.clientY,
+      );
+      if (distance === 0) return;
+      if (!pinchRef.current) {
+        pinchRef.current = {
+          startDistance: distance,
+          startScale: imageScaleRef.current,
+        };
+        touchStartRef.current = null;
+        panRef.current = null;
+        return;
+      }
+
+      const nextScale = Math.min(
+        4,
+        Math.max(1, pinchRef.current.startScale
+          * distance / pinchRef.current.startDistance),
+      );
+      imageScaleRef.current = nextScale;
+      setImageScale(nextScale);
+      if (nextScale === 1) setImagePan({ x: 0, y: 0 });
       return;
     }
 
-    const nextScale = Math.min(
-      4,
-      Math.max(1, pinchRef.current.startScale
-        * distance / pinchRef.current.startDistance),
-    );
-    imageScaleRef.current = nextScale;
-    setImageScale(nextScale);
+    const pan = panRef.current;
+    const touch = event.touches[0];
+    if (imageScaleRef.current <= 1 || !pan || !touch) return;
+    event.preventDefault();
+
+    const deltaX = touch.screenX - pan.x;
+    const deltaY = touch.screenY - pan.y;
+    if (Math.hypot(deltaX, deltaY) > 3) pan.moved = true;
+    setImagePan({
+      x: pan.startPan.x + deltaX,
+      y: pan.startPan.y + deltaY,
+    });
   };
 
   const handleTouchEnd = event => {
     if (pinchRef.current) {
       if (event.touches.length < 2) pinchRef.current = null;
+      touchStartRef.current = null;
+      panRef.current = null;
+      return;
+    }
+
+    const pan = panRef.current;
+    panRef.current = null;
+    if (pan?.moved || imageScaleRef.current > 1) {
       touchStartRef.current = null;
       return;
     }
@@ -204,6 +246,7 @@ export function ImageBody({ folder }) {
       onTouchCancel={() => {
         touchStartRef.current = null;
         pinchRef.current = null;
+        panRef.current = null;
       }}
     >
       <ImagePage
@@ -212,6 +255,7 @@ export function ImageBody({ folder }) {
         folder={folder}
         pageNumber={pageNumber}
         imageScale={imageScale}
+        imagePan={imagePan}
       />
     </main>
   );
