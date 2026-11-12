@@ -5,7 +5,7 @@ import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import TurndownService from 'turndown';
 
-const BOOK_ID = 'dark-store-street';
+const BOOK_ID = 'Yonosuke';
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', `${BOOK_ID}.epub`);
 const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
@@ -70,6 +70,22 @@ function getEpubMetadata(zipEntries, entryMap) {
     || /(?:^|\s)cover-image(?:\s|$)/i.test(getAttribute(item, 'properties') || ''),
   );
   const coverHref = coverItem && getAttribute(coverItem, 'href');
+  const manifestEntries = new Map(
+    manifestItems
+      .map(item => [getAttribute(item, 'id'), getAttribute(item, 'href')])
+      .filter(([id, href]) => id && href)
+      .map(([id, href]) => [
+        id,
+        path.posix.normalize(path.posix.join(
+          path.posix.dirname(opfEntry.entryName),
+          href.split(/[?#]/)[0],
+        )),
+      ]),
+  );
+  const spineMarkup = opf.match(/<spine\b[^>]*>([\s\S]*?)<\/spine>/i)?.[1] || '';
+  const spineEntryNames = [...spineMarkup.matchAll(/<itemref\b[^>]*\/?>/gi)]
+    .map(match => manifestEntries.get(getAttribute(match[0], 'idref')))
+    .filter(Boolean);
 
   return {
     title: getMetadataValue(metadata, 'title'),
@@ -78,6 +94,7 @@ function getEpubMetadata(zipEntries, entryMap) {
     coverEntryName: coverHref
       ? path.posix.normalize(path.posix.join(path.posix.dirname(opfEntry.entryName), coverHref))
       : null,
+    spineEntryNames,
   };
 }
 
@@ -300,7 +317,7 @@ async function convertEpubToMarkdown() {
     if (entry) usedImageEntries.set(imageName.toLowerCase(), entry);
   };
   const ncx = ncxEntry.getData().toString('utf8');
-  const parsedChapters = getNavPoints(ncx)
+  const chapterTargets = getNavPoints(ncx)
     .filter(navPoint => navPoint.title && navPoint.href)
     .filter(navPoint => /\.(?:xhtml|html|htm)$/i.test(navPoint.href.split(/[?#]/)[0]))
     .map(navPoint => {
@@ -308,27 +325,73 @@ async function convertEpubToMarkdown() {
       const entryName = path.posix.normalize(
         path.posix.join(path.posix.dirname(ncxEntry.entryName), href),
       );
-      const entry = entryMap.get(entryName);
-      if (!entry) {
-        throw new Error(`Chapter content not found in EPUB: ${entryName}`);
-      }
-
-      const html = entry.getData().toString('utf8');
-      const extracted = extractFootnotes(extractBodyHtml(html, entryName));
-      for (const imageTag of extracted.bodyHtml.matchAll(/<img\b[^>]*>/gi)) {
-        registerImage(getAttribute(imageTag[0], 'src'));
-      }
       return {
         title: navPoint.title,
-        bodyHtml: extracted.bodyHtml,
-        references: extracted.references,
-        footnotes: extracted.footnotes,
+        entryName,
+        spineIndex: epubMetadata.spineEntryNames.indexOf(entryName),
       };
     });
 
-  if (parsedChapters.length === 0) {
+  if (chapterTargets.length === 0) {
     throw new Error('No chapters were found in the EPUB table of contents');
   }
+
+  const parsedChapters = chapterTargets.map((chapter, index) => {
+    const entry = entryMap.get(chapter.entryName);
+    if (!entry) {
+      throw new Error(`Chapter content not found in EPUB: ${chapter.entryName}`);
+    }
+
+    let bodyHtml = extractBodyHtml(
+      entry.getData().toString('utf8'),
+      chapter.entryName,
+    );
+    if (!bodyHtml.trim() && chapter.spineIndex !== -1) {
+      const nextChapterIndex = chapterTargets
+        .slice(index + 1)
+        .map(nextChapter => nextChapter.spineIndex)
+        .find(spineIndex => spineIndex > chapter.spineIndex)
+        ?? epubMetadata.spineEntryNames.length;
+      const targetName = path.posix.basename(
+        chapter.entryName,
+        path.posix.extname(chapter.entryName),
+      );
+      const continuationEntries = epubMetadata.spineEntryNames
+        .slice(chapter.spineIndex + 1, nextChapterIndex)
+        .filter(entryName => {
+          const extension = path.posix.extname(entryName).toLowerCase();
+          const name = path.posix.basename(entryName);
+          return entryMap.has(entryName)
+            && /\.(?:xhtml|html|htm)$/i.test(extension)
+            && name.startsWith(`${targetName}_`);
+        });
+      const contentEntries = continuationEntries.length > 0
+        ? continuationEntries
+        : epubMetadata.spineEntryNames
+          .slice(chapter.spineIndex + 1, nextChapterIndex)
+          .filter(entryName => entryMap.has(entryName)
+            && /\.(?:xhtml|html|htm)$/i.test(entryName))
+          .slice(0, 1);
+      for (const contentEntryName of contentEntries) {
+        const contentEntry = entryMap.get(contentEntryName);
+        bodyHtml += `\n${extractBodyHtml(
+          contentEntry.getData().toString('utf8'),
+          contentEntryName,
+        )}`;
+      }
+    }
+
+    const extracted = extractFootnotes(bodyHtml);
+    for (const imageTag of extracted.bodyHtml.matchAll(/<img\b[^>]*>/gi)) {
+      registerImage(getAttribute(imageTag[0], 'src'));
+    }
+    return {
+      title: chapter.title,
+      bodyHtml: extracted.bodyHtml,
+      references: extracted.references,
+      footnotes: extracted.footnotes,
+    };
+  });
 
   if (epubMetadata.coverEntryName) {
     const coverEntry = entryMap.get(epubMetadata.coverEntryName);
@@ -364,6 +427,9 @@ async function convertEpubToMarkdown() {
       const idAttribute = reference.id ? ` id="${reference.id}"` : '';
       const link = `<sup><a${idAttribute} href="#${reference.href}">${escapeHtml(reference.label)}</a></sup>`;
       markdown = markdown.replace(reference.token, link);
+    }
+    if (!markdown.trim() && chapter.footnotes.length === 0) {
+      throw new Error(`Chapter has no readable content: ${chapter.title}`);
     }
     const footnoteList = chapter.footnotes.length
       ? `\n\n<ol class="footnotes">\n${chapter.footnotes.map(footnote =>
