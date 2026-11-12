@@ -5,9 +5,9 @@ import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import TurndownService from 'turndown';
 
+const BOOK_ID = 'dark-store-street';
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'tech-and-time.epub');
-const BOOK_ID = 'tech-and-time';
+const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', `${BOOK_ID}.epub`);
 const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
 
