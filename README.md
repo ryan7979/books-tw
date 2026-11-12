@@ -10,9 +10,9 @@ npm run build
 ```
 
 Book data lives in the repository-root `books/` directory. The Vite build
-copies it under `dist/_private/books/` for the Cloudflare Pages asset binding;
-the application middleware blocks direct requests to both `/books/` and
-`/_private/`. The reader uses the protected APIs instead:
+copies it once to `dist/books/` for the Cloudflare Pages asset binding. The
+application middleware blocks direct requests to `/books/`; book files are
+available only through the protected APIs:
 
 - `GET /api/getBooks` returns the bookshelf list.
 - `GET /api/getChapter?bookId=...` returns a book's table of contents.

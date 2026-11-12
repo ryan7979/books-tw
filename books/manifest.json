@@ -38,7 +38,7 @@
     "id": "demi-gods-and-semi-devils",
     "title": "天龍八部",
     "author": "金庸",
-    "description":"《天龍八部》：包羅萬有，離奇曲折，金庸之磅礡巨作；無人不冤，有情皆孽",
+    "description": "《天龍八部》：包羅萬有，離奇曲折，金庸之磅礡巨作；無人不冤，有情皆孽",
     "cover": "/books/demi-gods-and-semi-devils/images/cover.webp"
   },
   {
@@ -48,5 +48,12 @@
     "description": "正是時候讀莊子(二) 人情",
     "cover": "/books/its-time-for-zhuangzi-2/images/cover.jpg",
     "type": "jpg"
+  },
+  {
+    "id": "tech-and-time",
+    "title": "技術與時間",
+    "author": "Bernard Stiegler",
+    "description": "本書從認知語言學切入，揭示「隱喻」如何潛移默化地塑造人類的思考模式與行為邏輯。它會徹底改變你對日常語言的敏感度，看穿媒體、政治與人際溝通背後的框架操控。",
+    "cover": "/books/tech-and-time/images/book-cover-image.webp"
   }
 ]

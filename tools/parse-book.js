@@ -6,8 +6,8 @@ import sharp from 'sharp';
 import TurndownService from 'turndown';
 
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'its-time-for-zhuangzi-2.pdf');
-const BOOK_ID = 'its-time-for-zhuangzi-2';
+const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', 'tech-and-time.epub');
+const BOOK_ID = 'tech-and-time';
 const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp']);
 
@@ -413,7 +413,7 @@ async function convertEpubToMarkdown() {
     ...(existingBook?.pdf ? { pdf: existingBook.pdf } : {}),
     ...(coverName
       ? {
-        cover: `/api/getImage?bookId=${BOOK_ID}&name=${encodeURIComponent(coverName)}`,
+        cover: `/books/${BOOK_ID}/images/${encodeURIComponent(coverName)}`,
       }
       : {}),
   };

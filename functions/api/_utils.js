@@ -1,4 +1,4 @@
-const PRIVATE_BOOKS_PATH = '/_private/books';
+const BOOKS_PATH = '/books';
 
 export function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -26,7 +26,7 @@ export async function fetchBookAsset(context, relativePath) {
     throw new Error('Cloudflare Pages ASSETS binding is unavailable');
   }
 
-  const url = new URL(`${PRIVATE_BOOKS_PATH}/${relativePath}`, context.request.url);
+  const url = new URL(`${BOOKS_PATH}/${relativePath}`, context.request.url);
   return context.env.ASSETS.fetch(url);
 }
 

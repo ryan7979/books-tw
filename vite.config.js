@@ -12,12 +12,12 @@ export default defineConfig({
 		preact(),
 		tailwindcss(),
 		{
-			name: 'private-books',
+			name: 'books-assets',
 			apply: 'build',
 			closeBundle() {
 				cpSync(
 					path.join(projectRoot, 'books'),
-					path.join(projectRoot, 'dist', '_private', 'books'),
+					path.join(projectRoot, 'dist', 'books'),
 					{ recursive: true },
 				);
 			},
