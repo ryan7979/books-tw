@@ -1,4 +1,4 @@
-const SITE_TITLE = '無何有書齋'
+const SITE_TITLE = '無何有之齋'
 
 export const DICTIONARY = {
   siteTitle: SITE_TITLE,
