@@ -25,10 +25,25 @@ html.dark {
     @apply text-gray-500;
   }
   .bookshelf-search-wrap {
-    @apply mt-6 max-w-md;
+    @apply mb-6 mt-6 max-w-md shrink-0;
   }
   .bookshelf-search {
     @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm shadow-xs transition-all focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  .bookshelf-body {
+    @apply mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col;
+  }
+  .bookshelf-recent {
+    @apply mx-auto mb-4 w-full max-w-5xl shrink-0;
+  }
+  .bookshelf-recent-title {
+    @apply mb-2 text-sm font-semibold text-gray-500;
+  }
+  .bookshelf-recent-list {
+    @apply flex gap-3 overflow-x-auto overscroll-x-contain pb-2;
+  }
+  .bookshelf-recent-book {
+    @apply flex h-40 w-72 shrink-0 items-center gap-3 overflow-hidden rounded-2xl border border-gray-100 bg-white p-3 text-left shadow-xs transition-shadow hover:shadow-md;
   }
   .bookshelf-content {
     @apply mx-auto min-h-0 w-full max-w-5xl flex-1 overflow-y-auto overscroll-contain;
@@ -41,6 +56,9 @@ html.dark {
   }
   .bookshelf-grid {
     @apply grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .bookshelf-load-more {
+    @apply h-px;
   }
   .book-card {
     @apply flex cursor-pointer gap-4 rounded-2xl border border-gray-100 bg-white p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:shadow-md;
@@ -84,6 +102,15 @@ html.dark {
   }
   .reader-header-tools {
     @apply flex items-center gap-2;
+  }
+  .reader-content-controls {
+    @apply flex items-center gap-1;
+  }
+  .reader-content-controls-menu {
+    @apply hidden;
+  }
+  .reader-content-control {
+    @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-lg transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500;
   }
   .theme-toggle {
     @apply inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-lg transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500;
@@ -200,6 +227,12 @@ html.dark {
   .dark .bookshelf-search {
     @apply border-gray-700 bg-gray-900 text-gray-100;
   }
+  .dark .bookshelf-recent-title {
+    @apply text-gray-400;
+  }
+  .dark .bookshelf-recent-book {
+    @apply border-gray-800 bg-gray-900;
+  }
   .dark .bookshelf-empty,
   .dark .bookshelf-footer,
   .dark .book-progress,
@@ -227,8 +260,17 @@ html.dark {
   .dark .theme-toggle {
     @apply border-gray-700 bg-gray-900 hover:bg-gray-800;
   }
+  .dark .reader-content-control {
+    @apply border-gray-700 bg-gray-900 text-gray-100;
+  }
+  .dark .reader-content-control:hover {
+    @apply bg-gray-800;
+  }
   .dark .chapter-list {
     @apply border-gray-700 bg-gray-900;
+  }
+  .dark .reader-content-controls-menu {
+    @apply border-gray-800;
   }
   .dark .chapter-list-item {
     @apply border-gray-800;
@@ -284,20 +326,20 @@ html.dark {
     line-height: 1.3;
   }
   .prose-reader h1 {
-    font-size: 2rem;
+    font-size: 2em;
   }
   .prose-reader h2 {
-    font-size: 1.5rem;
+    font-size: 1.5em;
   }
   .prose-reader h3 {
-    font-size: 1.25rem;
+    font-size: 1.25em;
   }
   .prose-reader h4 {
-    font-size: 1.125rem;
+    font-size: 1.125em;
   }
   .prose-reader h5,
   .prose-reader h6 {
-    font-size: 1rem;
+    font-size: 1em;
   }
   .prose-reader > :first-child {
     margin-top: 0;
@@ -337,6 +379,14 @@ html.dark {
   }
 
   @media (max-width: 47.999rem) {
+    .reader-content-controls-header {
+      display: none;
+    }
+
+    .reader-content-controls-menu {
+      @apply flex justify-center border-b border-gray-100 px-3 py-2;
+    }
+
     .image-reader-body {
       touch-action: none;
     }
@@ -365,6 +415,10 @@ html.dark {
   }
 
   @media (min-width: 48rem) {
+    .reader-content-controls-menu {
+      display: none;
+    }
+
     .reader-header,
     .reader-body,
     .reader-footer {

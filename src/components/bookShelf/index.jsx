@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'preact/hooks';
 import { Body } from './body.jsx';
 import { Footer } from './footer.jsx';
 import { Header } from './header.jsx';
+import { RecentBooks } from './recentBooks.jsx';
 import { AppProvider, useAppContext } from '../../context/AppContext.jsx';
 import { fetchBooks } from '../../utils/dataService.js';
 import { DICTIONARY } from '../../utils/dictionary.js';
@@ -46,6 +47,7 @@ export function Bookshelf() {
     <AppProvider value={contextValue}>
       <div class="bookshelf-page">
         <Header />
+        <RecentBooks />
         <Body />
         <Footer />
       </div>

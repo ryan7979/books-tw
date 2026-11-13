@@ -58,7 +58,12 @@ export function App() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const setCurrentBookId = bookId => navigate(bookId, null);
+  const setCurrentBookId = bookId => {
+    if (bookId) {
+      localStorage.setItem(`last_read_${bookId}`, String(Date.now()));
+    }
+    navigate(bookId, null);
+  };
   const setCurrentChapterId = (chapterId, replace = false) => {
     if (route.bookId) navigate(route.bookId, chapterId, replace);
   };

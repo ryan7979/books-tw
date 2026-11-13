@@ -1,4 +1,4 @@
-const SITE_TITLE = '無何有之齋'
+const SITE_TITLE = '無何有之鄉'
 
 export const DICTIONARY = {
   siteTitle: SITE_TITLE,
@@ -6,6 +6,7 @@ export const DICTIONARY = {
     title: `📚 ${SITE_TITLE}` ,
     description: '極簡閱讀空間',
     searchPlaceholder: '搜尋書名或作者...',
+    recentlyRead: '最近閱讀',
     emptyMessage: '書架上空空如也，或是找不到對應的書籍。',
     bookCount: (visible, total) => `顯示 ${visible} / ${total} 本藏書`,
     authorPrefix: '作者：',
@@ -13,13 +14,17 @@ export const DICTIONARY = {
     notStarted: '✨ 尚未開始',
   },
   reader: {
-    close: '👈 返回',
+    close: '🔙 返回',
     loadingTitle: '載入中',
     loadingBook: '正在開啟書籍...',
     loadingChapter: '⏳ 正在翻開下一章...',
     chapterListClose: '關閉章節列表',
     chapterListOpen: '開啟章節列表',
     chapterListLabel: '章節列表',
+    increaseFontSize: '字體加大',
+    decreaseFontSize: '字體縮小',
+    resetFontSize: '回到預設字體大小',
+    selectChapterText: '全選本章文字',
     previousPage: '👈 上一章',
     nextPage: '下一章 👉',
     previousImagePage: '👆',

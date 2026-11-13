@@ -6,6 +6,7 @@ export function Body() {
   const {
     markdownHtml,
     isLoadingContent,
+    readerFontSize,
     scrollStorageKey,
     onPrevious,
     onNext,
@@ -81,6 +82,7 @@ export function Body() {
       ) : (
         <article
           class="prose-reader"
+          style={{ fontSize: `${readerFontSize}rem` }}
           dangerouslySetInnerHTML={{ __html: markdownHtml }}
         />
       )}

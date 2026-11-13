@@ -74,7 +74,8 @@ export function ImageBody({ folder }) {
     toc,
     currentChIndex,
     currentImagePage,
-    setCurrentImagePage,
+    onPreviousImagePage,
+    onNextImagePage,
     onPrevious,
     onNext,
   } = useAppContext();
@@ -112,10 +113,8 @@ export function ImageBody({ folder }) {
   }, [currentBookId, pageNumber]);
 
   const changePage = direction => {
-    setCurrentImagePage(currentPage => Math.min(
-      chapter.endPage,
-      Math.max(chapter.startPage, currentPage + direction),
-    ));
+    if (direction < 0) onPreviousImagePage();
+    else onNextImagePage();
   };
 
   useEffect(() => {
@@ -144,7 +143,15 @@ export function ImageBody({ folder }) {
 
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [chapter.id, chapter.startPage, chapter.endPage, onPrevious, onNext]);
+  }, [
+    chapter.id,
+    chapter.startPage,
+    chapter.endPage,
+    onPreviousImagePage,
+    onNextImagePage,
+    onPrevious,
+    onNext,
+  ]);
 
   const handleTouchStart = event => {
     if (event.touches.length >= 2) {

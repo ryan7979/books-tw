@@ -9,15 +9,74 @@ export function Header() {
     currentChIndex,
     setCurrentChIndex,
     onClose,
+    readerType,
+    onIncreaseFontSize,
+    onDecreaseFontSize,
+    onResetFontSize,
   } = useAppContext();
   const [isChapterListOpen, setIsChapterListOpen] = useState(false);
   const currentChapter = toc.chapters[currentChIndex] || {
     title: DICTIONARY.reader.loadingTitle,
   };
+  const isTextBook = !readerType && !toc.sourcePdf;
 
   const selectChapter = index => {
     setCurrentChIndex(index);
     setIsChapterListOpen(false);
+  };
+
+  const renderContentControls = className => (
+    <div class={`reader-content-controls ${className}`} aria-label="文字閱讀控制">
+      <button
+        type="button"
+        onClick={onIncreaseFontSize}
+        aria-label={DICTIONARY.reader.increaseFontSize}
+        title={DICTIONARY.reader.increaseFontSize}
+        class="reader-content-control"
+      >
+        ➕
+      </button>
+      <button
+        type="button"
+        onClick={onDecreaseFontSize}
+        aria-label={DICTIONARY.reader.decreaseFontSize}
+        title={DICTIONARY.reader.decreaseFontSize}
+        class="reader-content-control"
+      >
+        ➖
+      </button>
+      <button
+        type="button"
+        onClick={onResetFontSize}
+        aria-label={DICTIONARY.reader.resetFontSize}
+        title={DICTIONARY.reader.resetFontSize}
+        class="reader-content-control"
+      >
+        🎯
+      </button>
+      <button
+        type="button"
+        onClick={selectChapterText}
+        aria-label={DICTIONARY.reader.selectChapterText}
+        title={DICTIONARY.reader.selectChapterText}
+        class="reader-content-control"
+      >
+        📋
+      </button>
+    </div>
+  );
+
+  const selectChapterText = () => {
+    const article = document.querySelector('.prose-reader');
+    if (!article) return;
+
+    const selection = window.getSelection();
+    if (!selection) return;
+
+    const range = document.createRange();
+    range.selectNodeContents(article);
+    selection.removeAllRanges();
+    selection.addRange(range);
   };
 
   return (
@@ -34,6 +93,9 @@ export function Header() {
           <div class="reader-chapter-title">{currentChapter.title}</div>
         </div>
         <div class="reader-header-tools">
+          {isTextBook && (
+            renderContentControls('reader-content-controls-header')
+          )}
           <ThemeSelector />
           <button
             type="button"
@@ -49,13 +111,13 @@ export function Header() {
           </button>
         </div>
       </div>
-
       {isChapterListOpen && (
         <nav
           id="chapter-list"
           aria-label={DICTIONARY.reader.chapterListLabel}
           class="chapter-list"
         >
+          {isTextBook && renderContentControls('reader-content-controls-menu')}
           {toc.chapters.map((chapter, index) => (
             <button
               key={chapter.id}

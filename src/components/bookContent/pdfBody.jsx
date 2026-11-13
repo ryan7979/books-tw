@@ -123,6 +123,7 @@ export function PdfBody() {
     isLoadingMoreRef.current = false;
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
     localStorage.setItem(`progress_${currentBookId}`, chapter.id);
+    localStorage.setItem(`last_read_${currentBookId}`, String(Date.now()));
   }, [currentBookId, chapter.id, startPage, endPage]);
 
   useEffect(() => {

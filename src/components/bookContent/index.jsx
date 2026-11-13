@@ -13,6 +13,10 @@ import {
   fetchChapter,
 } from '../../utils/dataService.js';
 
+const DEFAULT_READER_FONT_SIZE = 1.125;
+const MIN_READER_FONT_SIZE = 0.75;
+const MAX_READER_FONT_SIZE = 2.5;
+
 function getImageProgress(bookId) {
   const savedProgress = localStorage.getItem(`image_progress_${bookId}`);
   if (!savedProgress) return null;
@@ -35,6 +39,7 @@ function saveImageProgress(bookId, chapterId, imagePage) {
     `image_progress_${bookId}`,
     JSON.stringify({ chapterId, imagePage }),
   );
+  localStorage.setItem(`last_read_${bookId}`, String(Date.now()));
 }
 
 function renderMarkdown(markdown) {
@@ -66,6 +71,7 @@ export function Content() {
   const [currentImagePage, setCurrentImagePage] = useState(null);
   const [markdownHtml, setMarkdownHtml] = useState('');
   const [isLoadingContent, setIsLoadingContent] = useState(false);
+  const [readerFontSize, setReaderFontSize] = useState(DEFAULT_READER_FONT_SIZE);
 
   useEffect(() => {
     if (!currentBookId) return;
@@ -165,6 +171,7 @@ export function Content() {
         setMarkdownHtml(renderMarkdown(markdown));
         setIsLoadingContent(false);
         localStorage.setItem(`progress_${currentBookId}`, currentChapter.id);
+        localStorage.setItem(`last_read_${currentBookId}`, String(Date.now()));
       })
       .catch(error => {
         if (!isActive) return;
@@ -219,9 +226,31 @@ export function Content() {
   };
   const onImagePageChange = direction => {
     if (!bookType || !currentChapter) return;
-    updateCurrentImagePage(page => Math.min(
+    const currentPage = currentImagePage ?? currentChapter.startPage;
+    const nextPage = currentPage + direction;
+    if (nextPage > currentChapter.endPage && currentChIndex < toc.chapters.length - 1) {
+      const nextChapter = toc.chapters[currentChIndex + 1];
+      saveImageProgress(currentBookId, nextChapter.id, nextChapter.startPage);
+      setCurrentImagePage(nextChapter.startPage);
+      setCurrentChIndex(currentChIndex + 1);
+      return;
+    }
+    if (nextPage < currentChapter.startPage && currentChIndex > 0) {
+      const previousChapter = toc.chapters[currentChIndex - 1];
+      saveImageProgress(currentBookId, previousChapter.id, previousChapter.endPage);
+      setCurrentImagePage(previousChapter.endPage);
+      setCurrentChIndex(currentChIndex - 1);
+      return;
+    }
+    updateCurrentImagePage(Math.min(
       currentChapter.endPage,
-      Math.max(currentChapter.startPage, page + direction),
+      Math.max(currentChapter.startPage, nextPage),
+    ));
+  };
+  const adjustReaderFontSize = direction => {
+    setReaderFontSize(size => Math.min(
+      MAX_READER_FONT_SIZE,
+      Math.max(MIN_READER_FONT_SIZE, size + direction * 0.125),
     ));
   };
   const readerContextValue = {
@@ -231,13 +260,19 @@ export function Content() {
     setCurrentChIndex,
     markdownHtml,
     isLoadingContent,
+    readerFontSize,
+    onIncreaseFontSize: () => adjustReaderFontSize(1),
+    onDecreaseFontSize: () => adjustReaderFontSize(-1),
+    onResetFontSize: () => setReaderFontSize(DEFAULT_READER_FONT_SIZE),
     readerType: bookType,
     currentImagePage,
     setCurrentImagePage: updateCurrentImagePage,
     onPreviousImagePage: () => onImagePageChange(-1),
     onNextImagePage: () => onImagePageChange(1),
-    isFirstImagePage: currentImagePage <= currentChapter.startPage,
-    isLastImagePage: currentImagePage >= currentChapter.endPage,
+    isFirstImagePage: currentChIndex === 0
+      && currentImagePage <= currentChapter.startPage,
+    isLastImagePage: currentChIndex === toc.chapters.length - 1
+      && currentImagePage >= currentChapter.endPage,
     scrollStorageKey: `scroll_${currentBookId}_${toc.chapters[currentChIndex]?.id || ''}`,
     onClose,
     onPrevious,
