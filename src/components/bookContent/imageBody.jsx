@@ -7,6 +7,8 @@ function ImagePage({
   pageNumber,
   imageScale,
   imagePan,
+  isOriginalSize,
+  isDragging,
 }) {
   const [imageUrl, setImageUrl] = useState('');
   const [error, setError] = useState('');
@@ -52,7 +54,9 @@ function ImagePage({
     : imageUrl
       ? (
         <img
-          class="reader-image-page"
+          class={`reader-image-page ${
+            isOriginalSize ? 'reader-image-page-original' : 'reader-image-page-fit'
+          }${isDragging ? ' reader-image-page-dragging' : ''}`}
           src={imageUrl}
           alt=""
           draggable="false"
@@ -71,28 +75,35 @@ export function ImageBody({ folder }) {
     currentChIndex,
     currentImagePage,
     setCurrentImagePage,
+    onPrevious,
+    onNext,
   } = useAppContext();
   const bodyRef = useRef(null);
   const touchStartRef = useRef(null);
   const pinchRef = useRef(null);
   const panRef = useRef(null);
+  const pointerPanRef = useRef(null);
   const imageScaleRef = useRef(1);
   const chapter = toc.chapters[currentChIndex];
   const pageNumber = currentImagePage ?? chapter.startPage;
   const [imageScale, setImageScale] = useState(1);
   const [imagePan, setImagePan] = useState({ x: 0, y: 0 });
+  const [isOriginalSize, setIsOriginalSize] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
-    setCurrentImagePage(chapter.startPage);
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
-  }, [currentBookId, chapter.id, chapter.startPage]);
+  }, [currentBookId, chapter.id]);
 
   useEffect(() => {
     imageScaleRef.current = 1;
     setImageScale(1);
     setImagePan({ x: 0, y: 0 });
+    setIsOriginalSize(false);
+    setIsDragging(false);
     pinchRef.current = null;
     panRef.current = null;
+    pointerPanRef.current = null;
     touchStartRef.current = null;
     if (bodyRef.current) {
       bodyRef.current.scrollLeft = 0;
@@ -109,29 +120,31 @@ export function ImageBody({ folder }) {
 
   useEffect(() => {
     const handleKeyDown = event => {
-      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
-      const target = event.target;
-      const isImagePageButton = target instanceof HTMLElement
-        && target.closest('[data-image-page-control]');
-      if (target instanceof HTMLElement
-        && (target.isContentEditable
-          || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)
-          || (target.tagName === 'BUTTON' && !isImagePageButton))) {
-        return;
-      }
-
-      if (event.key === 'ArrowDown') {
-        event.preventDefault();
-        changePage(1);
-      } else if (event.key === 'ArrowUp') {
-        event.preventDefault();
-        changePage(-1);
+      switch (event.key) {
+        case 'ArrowUp':
+          event.preventDefault();
+          changePage(-1);
+          break;
+        case 'ArrowDown':
+          event.preventDefault();
+          changePage(1);
+          break;
+        case 'PageUp':
+          event.preventDefault();
+          onPrevious();
+          break;
+        case 'PageDown':
+          event.preventDefault();
+          onNext();
+          break;
+        default:
+          break;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [chapter.startPage, chapter.endPage]);
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [chapter.id, chapter.startPage, chapter.endPage, onPrevious, onNext]);
 
   const handleTouchStart = event => {
     if (event.touches.length >= 2) {
@@ -236,10 +249,71 @@ export function ImageBody({ folder }) {
     changePage(deltaY < 0 ? 1 : -1);
   };
 
+  const handlePointerDown = event => {
+    if (event.pointerType !== 'mouse'
+      || !window.matchMedia('(min-width: 48rem)').matches
+      || !(event.target instanceof Element)
+      || !event.target.closest('.reader-image-page')) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    pointerPanRef.current = {
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      startPan: imagePan,
+      isOriginalSize,
+      moved: false,
+    };
+  };
+
+  const handlePointerMove = event => {
+    const pan = pointerPanRef.current;
+    if (!pan || pan.pointerId !== event.pointerId || !pan.isOriginalSize) return;
+
+    const deltaX = event.clientX - pan.x;
+    const deltaY = event.clientY - pan.y;
+    if (!pan.moved && Math.hypot(deltaX, deltaY) > 3) {
+      pan.moved = true;
+      setIsDragging(true);
+    }
+    if (pan.moved) {
+      setImagePan({
+        x: pan.startPan.x + deltaX,
+        y: pan.startPan.y + deltaY,
+      });
+    }
+  };
+
+  const handlePointerEnd = event => {
+    const pan = pointerPanRef.current;
+    if (!pan || pan.pointerId !== event.pointerId) return;
+
+    pointerPanRef.current = null;
+    setIsDragging(false);
+    if (pan.moved) return;
+
+    const nextIsOriginalSize = !pan.isOriginalSize;
+    setIsOriginalSize(nextIsOriginalSize);
+    if (!nextIsOriginalSize) setImagePan({ x: 0, y: 0 });
+  };
+
+  const handlePointerCancel = event => {
+    if (pointerPanRef.current?.pointerId !== event.pointerId) return;
+    pointerPanRef.current = null;
+    setIsDragging(false);
+  };
+
   return (
     <main
       ref={bodyRef}
       class="reader-body image-reader-body"
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerCancel}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -256,6 +330,8 @@ export function ImageBody({ folder }) {
         pageNumber={pageNumber}
         imageScale={imageScale}
         imagePan={imagePan}
+        isOriginalSize={isOriginalSize}
+        isDragging={isDragging}
       />
     </main>
   );

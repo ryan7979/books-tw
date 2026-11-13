@@ -13,6 +13,30 @@ import {
   fetchChapter,
 } from '../../utils/dataService.js';
 
+function getImageProgress(bookId) {
+  const savedProgress = localStorage.getItem(`image_progress_${bookId}`);
+  if (!savedProgress) return null;
+
+  try {
+    const progress = JSON.parse(savedProgress);
+    return typeof progress.chapterId === 'string'
+      && Number.isInteger(progress.imagePage)
+      ? progress
+      : null;
+  } catch (error) {
+    console.warn(`Invalid image progress for ${bookId}:`, error);
+    return null;
+  }
+}
+
+function saveImageProgress(bookId, chapterId, imagePage) {
+  localStorage.setItem(`progress_${bookId}`, chapterId);
+  localStorage.setItem(
+    `image_progress_${bookId}`,
+    JSON.stringify({ chapterId, imagePage }),
+  );
+}
+
 function renderMarkdown(markdown) {
   return markdown
     .split(/\r?\n[ \t]*\r?\n+/)
@@ -66,7 +90,11 @@ export function Content() {
         const routeIndex = currentChapterId
           ? data.chapters.findIndex(chapter => chapter.id === currentChapterId)
           : -1;
-        const savedChId = localStorage.getItem(`progress_${currentBookId}`);
+        const savedImageProgress = typeof book.type === 'string'
+          ? getImageProgress(currentBookId)
+          : null;
+        const savedChId = savedImageProgress?.chapterId
+          || localStorage.getItem(`progress_${currentBookId}`);
         const savedIndex = savedChId
           ? data.chapters.findIndex(chapter => chapter.id === savedChId)
           : -1;
@@ -104,8 +132,19 @@ export function Content() {
 
   useEffect(() => {
     const currentChapter = toc?.chapters[currentChIndex];
-    if (currentChapter) setCurrentImagePage(currentChapter.startPage);
-  }, [currentBookId, currentChIndex, toc]);
+    if (!currentBookId || !currentChapter) return;
+
+    const savedProgress = bookType ? getImageProgress(currentBookId) : null;
+    const savedPage = savedProgress?.chapterId === currentChapter.id
+      && savedProgress.imagePage >= currentChapter.startPage
+      && savedProgress.imagePage <= currentChapter.endPage
+      ? savedProgress.imagePage
+      : currentChapter.startPage;
+    setCurrentImagePage(savedPage);
+    if (bookType) {
+      saveImageProgress(currentBookId, currentChapter.id, savedPage);
+    }
+  }, [currentBookId, currentChIndex, toc, bookType]);
 
   useEffect(() => {
     const currentChapter = toc?.chapters[currentChIndex];
@@ -166,9 +205,21 @@ export function Content() {
     }
   };
   const currentChapter = toc.chapters[currentChIndex];
+  const updateCurrentImagePage = pageOrUpdater => {
+    if (!currentChapter) return;
+
+    const currentPage = currentImagePage ?? currentChapter.startPage;
+    const nextPage = typeof pageOrUpdater === 'function'
+      ? pageOrUpdater(currentPage)
+      : pageOrUpdater;
+    setCurrentImagePage(nextPage);
+    if (bookType) {
+      saveImageProgress(currentBookId, currentChapter.id, nextPage);
+    }
+  };
   const onImagePageChange = direction => {
     if (!bookType || !currentChapter) return;
-    setCurrentImagePage(page => Math.min(
+    updateCurrentImagePage(page => Math.min(
       currentChapter.endPage,
       Math.max(currentChapter.startPage, page + direction),
     ));
@@ -182,7 +233,7 @@ export function Content() {
     isLoadingContent,
     readerType: bookType,
     currentImagePage,
-    setCurrentImagePage,
+    setCurrentImagePage: updateCurrentImagePage,
     onPreviousImagePage: () => onImagePageChange(-1),
     onNextImagePage: () => onImagePageChange(1),
     isFirstImagePage: currentImagePage <= currentChapter.startPage,
