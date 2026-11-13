@@ -1,0 +1,108 @@
+{
+  "bookTitle": "莊子——以自在之心開發無限潛能",
+  "pageNumbering": "1-based image page index",
+  "chapters": [
+    {
+      "id": "ch-001",
+      "title": "序",
+      "startPage": 8,
+      "endPage": 10
+    },
+    {
+      "id": "ch-002",
+      "title": "主題一：人間患難深重",
+      "startPage": 11,
+      "endPage": 13
+    },
+    {
+      "id": "ch-003",
+      "title": "第一講：深度虛無主義",
+      "startPage": 14,
+      "endPage": 34
+    },
+    {
+      "id": "ch-004",
+      "title": "第二講：身體的困境",
+      "startPage": 35,
+      "endPage": 53
+    },
+    {
+      "id": "ch-005",
+      "title": "第三講：心智的茫然",
+      "startPage": 54,
+      "endPage": 72
+    },
+    {
+      "id": "ch-006",
+      "title": "主題二：心齋與道契合",
+      "startPage": 73,
+      "endPage": 73
+    },
+    {
+      "id": "ch-007",
+      "title": "第一講：心齋的修練",
+      "startPage": 74,
+      "endPage": 94
+    },
+    {
+      "id": "ch-008",
+      "title": "第二講：順從「不得已」",
+      "startPage": 95,
+      "endPage": 107
+    },
+    {
+      "id": "ch-009",
+      "title": "第三講：化解一切的執著",
+      "startPage": 108,
+      "endPage": 134
+    },
+    {
+      "id": "ch-010",
+      "title": "主題三：外化而內不化",
+      "startPage": 135,
+      "endPage": 135
+    },
+    {
+      "id": "ch-011",
+      "title": "第一講：不與世俗爭勝",
+      "startPage": 136,
+      "endPage": 154
+    },
+    {
+      "id": "ch-012",
+      "title": "第二講：外化的秘訣",
+      "startPage": 155,
+      "endPage": 174
+    },
+    {
+      "id": "ch-013",
+      "title": "第三講：內不化的快樂",
+      "startPage": 175,
+      "endPage": 194
+    },
+    {
+      "id": "ch-014",
+      "title": "主題四：從真實到美感",
+      "startPage": 195,
+      "endPage": 195
+    },
+    {
+      "id": "ch-015",
+      "title": "第一講：以身合心：從技術到藝術",
+      "startPage": 196,
+      "endPage": 220
+    },
+    {
+      "id": "ch-016",
+      "title": "第二講：以心合道：靜與遊",
+      "startPage": 221,
+      "endPage": 235
+    },
+    {
+      "id": "ch-017",
+      "title": "第三講：美感洋溢的生命",
+      "startPage": 236,
+      "endPage": 254
+    }
+  ]
+}

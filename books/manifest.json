@@ -42,6 +42,13 @@
     "cover": "/books/forrest-gump/images/cover.jpeg"
   },
   {
+    "id": "a-night-of-ripples",
+    "title": "漣漪的夜晚",
+    "author": "木皿泉",
+    "description": "　繼《昨夜的咖哩，明日的麵包》睽違六年，木皿泉最新小說——寫給「活著的人」的至福物語",
+    "cover": "cover.jpg"
+  },
+  {
     "id": "romance-of-the-three-kingdoms",
     "title": "三國演義",
     "author": "羅貫中",
@@ -54,6 +61,14 @@
     "author": "列夫．托爾斯泰",
     "description": "死亡文學巔峰神作，寫給每一個人的生命之書",
     "cover": "/books/the-death-of-Ivan-Ilyich/images/Cover.webp"
+  },
+  {
+    "id": "zhuangzi-class",
+    "title": "莊子 以自在之心開發無限潛能",
+    "author": "傅佩榮",
+    "description": "深厚的西方哲學訓練，擅長用精準的概念界定「道」、「齊物」與「逍遙」等核心命題",
+    "cover": "/books/zhuangzi-class/images/cover.jpg",
+    "type": "jpg"
   },
   {
     "id": "its-time-for-zhuangzi-1",
@@ -70,13 +85,6 @@
     "cover": "/books/zhuangzi-start-from-heart/images/cover.webp"
   },
   {
-    "id": "demi-gods-and-semi-devils",
-    "title": "天龍八部",
-    "author": "金庸",
-    "description": "《天龍八部》：包羅萬有，離奇曲折，金庸之磅礡巨作；無人不冤，有情皆孽",
-    "cover": "/books/demi-gods-and-semi-devils/images/cover.webp"
-  },
-  {
     "id": "its-time-for-zhuangzi-2",
     "title": "正是時候讀莊子(二) 人情",
     "author": "蔡璧名",
@@ -85,10 +93,66 @@
     "type": "jpg"
   },
   {
+    "id": "demi-gods-and-semi-devils",
+    "title": "天龍八部",
+    "author": "金庸",
+    "description": "《天龍八部》：包羅萬有，離奇曲折，金庸之磅礡巨作；無人不冤，有情皆孽",
+    "cover": "/books/demi-gods-and-semi-devils/images/cover.webp"
+  },
+  {
     "id": "tech-and-time",
     "title": "技術與時間",
     "author": "Bernard Stiegler",
     "description": "本書從認知語言學切入，揭示「隱喻」如何潛移默化地塑造人類的思考模式與行為邏輯。它會徹底改變你對日常語言的敏感度，看穿媒體、政治與人際溝通背後的框架操控。",
     "cover": "/books/tech-and-time/images/book-cover-image.webp"
+  },
+  {
+    "id": "my-roposal-of-a-simple-life",
+    "title": "我簡單豐富的生活提案",
+    "author": "澀谷直人 ミニマリストしぶ",
+    "description": "我簡單豐富的生活提案",
+    "cover": "/books/my-roposal-of-a-simple-life/images/cover.webp"
+  },
+  {
+    "id": "10-lessons-on-zhuangzi",
+    "title": "厭世講堂：顛覆人生的十堂莊子課",
+    "author": "厭世哲學家",
+    "description": "厭世講堂：顛覆人生的十堂莊子課",
+    "cover": "/books/10-lessons-on-zhuangzi/images/cover.webp"
+  },
+  {
+    "id": "lessons-learned-from-the-worlds-happiest-country",
+    "title": "北歐時間：世界第一幸福國度教會我的事",
+    "author": "日暮Inko",
+    "description": "北歐時間：世界第一幸福國度教會我的事",
+    "cover": "/books/lessons-learned-from-the-worlds-happiest-country/images/cover.webp"
+  },
+  {
+    "id": "economics-on-an-island",
+    "title": "小島經濟學",
+    "author": "彼得‧ 希夫安德魯‧ 希夫",
+    "description": "小島經濟學",
+    "cover": "/books/economics-on-an-island/images/2018-12-28_100719.webp"
+  },
+  {
+    "id": "a-simple-life-of-decluttering-and-letting-go",
+    "title": "斷捨離的簡單生活",
+    "author": "山下英子",
+    "description": "斷捨離的簡單生活",
+    "cover": "/books/a-simple-life-of-decluttering-and-letting-go/images/7543049_1_1.webp"
+  },
+  {
+    "id": "notes-on-an-empty-house-free-of-charge-freedom",
+    "title": "空屋筆記：免費的自由",
+    "author": "楊宗翰",
+    "description": "人生而自由。但如果，所謂的自由，只能夠透過不斷的買這個、買那個，才能有資格。這樣子，算什麼自由？ 人類被創造出來，是為了要被疼愛；東西被創造出來，是為了要被使用。 這個世界之所以混亂如斯，正是因為我們把東西拿來疼愛；卻把人類拿來使用。 我們生在一個充滿矛盾的社會。人們逼著自己成為自己討厭的人、做討厭的事；農夫不吃自己種的食物；房子越蓋越多，有房住的人卻越來越少；食物越種越多，但丟進垃圾桶的卻多過吃進嘴裡的。 我們只缺一個選擇，一個可以讓任何人，而非單單有錢有勢的人，過得更好更和諧，對環境更溫柔的選擇，而非更多、更大、卻更痛苦的選擇。",
+    "cover": "/books/notes-on-an-empty-house-free-of-charge-freedom/images/1.webp"
+  },
+  {
+    "id": "rotation-and-revolution",
+    "title": "自轉公轉",
+    "author": "山本文緒",
+    "description": "自轉公轉",
+    "cover": "/books/rotation-and-revolution/images/cover.webp"
   }
 ]

@@ -5,7 +5,7 @@ import AdmZip from 'adm-zip';
 import sharp from 'sharp';
 import TurndownService from 'turndown';
 
-const BOOK_ID = 'Yonosuke';
+const BOOK_ID = 'rotation-and-revolution';
 const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const EPUB_FILE_PATH = path.join(PROJECT_ROOT, 'epubs', `${BOOK_ID}.epub`);
 const BOOKS_DIR = path.join(PROJECT_ROOT, 'books');
@@ -31,13 +31,19 @@ function decodeXml(text) {
     .replace(/&#39;|&apos;/g, "'");
 }
 
+function getTextContent(markup) {
+  return decodeXml(
+    markup
+      .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+      .replace(/<[^>]+>/g, ''),
+  ).trim();
+}
+
 function getMetadataValue(metadata, elementName) {
   const match = metadata.match(
     new RegExp(`<dc:${elementName}\\b[^>]*>([\\s\\S]*?)<\\/dc:${elementName}\\s*>`, 'i'),
   );
-  return match?.[1].replace(/<[^>]+>/g, '').trim()
-    ? decodeXml(match[1].replace(/<[^>]+>/g, '').trim())
-    : '';
+  return match ? getTextContent(match[1]) : '';
 }
 
 function getEpubMetadata(zipEntries, entryMap) {
@@ -118,14 +124,7 @@ function getNavPoints(ncx) {
     } else if (/^<navLabel\b/i.test(token) && stack.length > 0) {
       const titleMatch = token.match(/<text\b[^>]*>([\s\S]*?)<\/text>/i);
       if (titleMatch) {
-        stack[stack.length - 1].title = titleMatch[1]
-          .replace(/<[^>]+>/g, '')
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#39;|&apos;/g, "'")
-          .trim();
+        stack[stack.length - 1].title = getTextContent(titleMatch[1]);
       }
     } else if (/^<content\b/i.test(token) && stack.length > 0) {
       stack[stack.length - 1].href = getAttribute(token, 'src') || '';
@@ -233,6 +232,25 @@ function extractBodyHtml(html, entryName) {
   return match[1];
 }
 
+function hasReadableText(html) {
+  return html
+    .replace(/<[^>]*>/g, '')
+    .replace(/&(?:nbsp|#160);/gi, '')
+    .trim().length > 0;
+}
+
+function getChapterTitle(html, entryName) {
+  const heading = html.match(/<h[1-6]\b[^>]*>([\s\S]*?)<\/h[1-6]>/i)?.[1];
+  if (heading) {
+    return decodeXml(heading.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
+  }
+
+  const bodyText = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  if (/^謹以此書獻給/.test(bodyText)) return '獻詞';
+  if (/^版權頁/.test(bodyText)) return '版權頁';
+  return path.posix.basename(entryName, path.posix.extname(entryName));
+}
+
 function importPdf() {
   const manifestPath = path.join(BOOKS_DIR, 'manifest.json');
   const pdfName = `${BOOK_ID}.pdf`;
@@ -317,7 +335,7 @@ async function convertEpubToMarkdown() {
     if (entry) usedImageEntries.set(imageName.toLowerCase(), entry);
   };
   const ncx = ncxEntry.getData().toString('utf8');
-  const chapterTargets = getNavPoints(ncx)
+  const navChapterTargets = getNavPoints(ncx)
     .filter(navPoint => navPoint.title && navPoint.href)
     .filter(navPoint => /\.(?:xhtml|html|htm)$/i.test(navPoint.href.split(/[?#]/)[0]))
     .map(navPoint => {
@@ -330,7 +348,35 @@ async function convertEpubToMarkdown() {
         entryName,
         spineIndex: epubMetadata.spineEntryNames.indexOf(entryName),
       };
-    });
+    })
+    .filter(chapter => path.posix.basename(chapter.entryName).toLowerCase() !== 'cover.xhtml');
+  const spineChapterTargets = epubMetadata.spineEntryNames
+    .map((entryName, spineIndex) => {
+      if (!/\.(?:xhtml|html|htm)$/i.test(entryName)
+        || /^(?:cover|nav)\.xhtml$/i.test(path.posix.basename(entryName))) {
+        return null;
+      }
+
+      const entry = entryMap.get(entryName);
+      if (!entry) return null;
+
+      const bodyHtml = extractBodyHtml(
+        entry.getData().toString('utf8'),
+        entryName,
+      );
+      if (!hasReadableText(bodyHtml)) return null;
+
+      return {
+        title: getChapterTitle(bodyHtml, entryName),
+        entryName,
+        spineIndex,
+      };
+    })
+    .filter(Boolean);
+  const chapterTargets = navChapterTargets.length === 1
+    && spineChapterTargets.length > navChapterTargets.length
+    ? spineChapterTargets
+    : navChapterTargets;
 
   if (chapterTargets.length === 0) {
     throw new Error('No chapters were found in the EPUB table of contents');
@@ -346,7 +392,7 @@ async function convertEpubToMarkdown() {
       entry.getData().toString('utf8'),
       chapter.entryName,
     );
-    if (!bodyHtml.trim() && chapter.spineIndex !== -1) {
+    if (!hasReadableText(bodyHtml) && chapter.spineIndex !== -1) {
       const nextChapterIndex = chapterTargets
         .slice(index + 1)
         .map(nextChapter => nextChapter.spineIndex)
@@ -363,7 +409,8 @@ async function convertEpubToMarkdown() {
           const name = path.posix.basename(entryName);
           return entryMap.has(entryName)
             && /\.(?:xhtml|html|htm)$/i.test(extension)
-            && name.startsWith(`${targetName}_`);
+            && (name.startsWith(`${targetName}_`)
+              || name.startsWith(`${targetName}-`));
         });
       const contentEntries = continuationEntries.length > 0
         ? continuationEntries

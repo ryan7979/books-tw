@@ -273,11 +273,44 @@ html.dark {
     margin-bottom: 1.75rem;
     text-align: justify;
   }
+  .prose-reader h1,
+  .prose-reader h2,
+  .prose-reader h3,
+  .prose-reader h4,
+  .prose-reader h5,
+  .prose-reader h6 {
+    margin: 1.5em 0 0.75em;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .prose-reader h1 {
+    font-size: 2rem;
+  }
+  .prose-reader h2 {
+    font-size: 1.5rem;
+  }
+  .prose-reader h3 {
+    font-size: 1.25rem;
+  }
+  .prose-reader h4 {
+    font-size: 1.125rem;
+  }
+  .prose-reader h5,
+  .prose-reader h6 {
+    font-size: 1rem;
+  }
+  .prose-reader > :first-child {
+    margin-top: 0;
+  }
   .dark .prose-reader {
     color: #e5e7eb;
   }
   .dark .prose-reader h1,
-  .dark .prose-reader h2 {
+  .dark .prose-reader h2,
+  .dark .prose-reader h3,
+  .dark .prose-reader h4,
+  .dark .prose-reader h5,
+  .dark .prose-reader h6 {
     color: #f9fafb;
   }
 
